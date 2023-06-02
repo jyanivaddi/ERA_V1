@@ -3,18 +3,38 @@
 ## Contents
 
 * [Introduction](#Introduction)
+ 
+* [S5.ipynb](#S5.ipynb)
 
 * [model.py](#model.py)
 
 * [utils.py](#utils.py)
-
-* [S5.ipynb](#S5.ipynb)
 
 
 ## Introduction
 <p>
 In this repository, we build a deep learning model to predict handwritten digits
 using the MNIST dataset. 
+</p>
+
+
+## S5.ipynb
+
+<p> This notebook contains the script to run the model end to end. Since the notebook refers to external python script 
+files, we need to make sure that these files are available for colab to locate. In order to do that, we need to upload the 
+python files to Google Drive and mount the path to google drive to the local file system inside colab environment.
+This is done by adding the following code to the top of the block:
+</p>
+
+```
+import sys
+from google.colab import drive
+drive.mount('/content/drive')
+sys.path.insert(0,'/content/drive/MyDrive/ERA_V1/session_5')
+```
+
+<p>
+Once the directory is mounted, then we can run the notebook one cell at a time. 
 </p>
 
 ## model.py
@@ -71,7 +91,3 @@ Non-trainable params: 0
 
 </p>
 
-## S5.ipynb
-
-<p> This notebook contains the script to run the model end to end. In order to run this code, we first load this 
-</p>
