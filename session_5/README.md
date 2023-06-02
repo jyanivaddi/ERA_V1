@@ -4,11 +4,11 @@
 
 * [Introduction](#Introduction)
  
-* [S5.ipynb](#S5.ipynb)
+* [S5.ipynb](#S5ipynb`)
 
-* [model.py](#model.py)
+* [model.py](#modelpy)
 
-* [utils.py](#utils.py)
+* [utils.py](#utilspy)
 
 
 ## Introduction
@@ -41,6 +41,7 @@ Once the directory is mounted, then we can run the notebook one cell at a time.
 <p>This script contains the definition of the deep learning model that we are trying to build. The model is defined as a class and contains the definitions of all the convolution and fully connected layers. 
 
 The model is summarized as:
+</p>
 
 
 ----------------------------------------------------------------
@@ -53,12 +54,14 @@ The model is summarized as:
             Conv2d-4            [-1, 256, 8, 8]         295,168
             Linear-5                   [-1, 50]         204,850
             Linear-6                   [-1, 10]             510
+
 ----------------------------------------------------------------
-Total params: 593,200\
-Trainable params: 593,200\
-Non-trainable params: 0
+
+Total params: 593,200 <br>
+Trainable params: 593,200 <br>
+Non-trainable params: 0 <br>
+
 ----------------------------------------------------------------
-</p>
 
 ## utils.py
 
