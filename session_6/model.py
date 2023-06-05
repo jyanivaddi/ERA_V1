@@ -21,4 +21,5 @@ class Net(nn.Module):
         # C4:n_i = 10, n_o = 20, s = 1, j_i = 2, j_o = 2, r_i = 10, r_o = 12
         x = F.relu(self.conv3(x))
         x = self.gap(x)
+        x = x.view(-1,10)
         return F.log_softmax(x,dim=1)
