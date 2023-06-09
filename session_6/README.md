@@ -1,13 +1,23 @@
-# ERA V1 Session 6 - Detecting handwritten digits under 20K parameters with an accuracy of 99.4%
+# ERA V1 Session 6 - Back Propagation and advanced architectures
 
 ## Contents
-
+* [Back Propagation](#BackPropagation)
 * [Introduction](#Introduction)
 * [Model Architecture and performance](#ModelArchitecture)
 * [Experiment Summary](#Summaryofotherexperiments)
 * [Learnings and Takeaways](#Learnings&Takeaways)
 
+# Part 1: Back Propagation
+## Excel based Back Propagation calculation
+Below is the snapshot of the back propagation. The excel sheet with the calculations is in the repo.
 
+![Back Prop](doc/back_prop.png)
+
+When the learning rate was increased from 0.1 to 2.0, the rate of convergence has changed. The change in loss was very small for the smaller values of learning rate and did not converge. At the value of 2.0, the loss finally converged in around 40 iterations.
+
+![Learning Rate](doc/LR_experiments.png)
+
+# Part 2: MNIST digits detection 
 ## Introduction
 <p>
 In this session's assignment, I built a deep learning model to predict handwritten digits from the MNIST dataset. The model contains 14372 parameters and achieved the required test accuracy of 99.4% within 13 training epochs. The maximum test accuracy during the 20 epochs of training was 99.6%.
