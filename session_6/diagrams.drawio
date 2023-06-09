@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" modified="2023-06-09T12:33:44.888Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" etag="3pEGyZUB4CtvqPHaBL3n" version="21.3.8" type="device">
+  <diagram name="Page-1" id="4NobKL0FiNOXIPSiVlQy">
+    <mxGraphModel dx="2620" dy="854" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-41" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-740" y="290" width="1740" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-8" target="ELZbtfNW_3VUk3NMvu52-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-8" value="Conv2D (5 x 5 x 1 x 32)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-670" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-9" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 28 x 28 x 1&lt;br&gt;Output: 24 x 24 x 32&lt;br&gt;Input RF: 1&lt;br&gt;Output RF: 5&amp;nbsp;&lt;br&gt;# of parameters: 800&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-8">
+          <mxGeometry x="10" y="25" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-11" target="ELZbtfNW_3VUk3NMvu52-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-11" value="Conv2D (3 x 3 x 32 x 32)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-432" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-12" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 24 x 24 x 32&lt;br&gt;Output: 22 x 22 x 32&lt;br&gt;Input RF: 5&lt;br&gt;Output RF: 7&amp;nbsp;&lt;br&gt;# of parameters: 9216&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-11">
+          <mxGeometry x="5" y="30" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-39" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-13" target="ELZbtfNW_3VUk3NMvu52-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-13" value="Conv 2D (3 x 3 x 32 x 32)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="-193" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-14" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 22 x 22 x 32&lt;br&gt;Output: 20 x 20 x 32&lt;br&gt;Input RF: 7&lt;br&gt;Output RF: 9&amp;nbsp;&amp;nbsp;&lt;br&gt;# of parameters: 9216&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-13">
+          <mxGeometry x="10" y="25" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-15" target="ELZbtfNW_3VUk3NMvu52-17">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="280" y="425" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-15" value="MaxPool 2D (2 x 2 x 32)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="45" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-16" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 20 x 20 x 32&lt;br&gt;Output: 10 x 10 x 32&lt;br&gt;Input RF: 9&lt;br&gt;Output RF: 10&amp;nbsp;&lt;br&gt;# of parameters: 0&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-15">
+          <mxGeometry x="10" y="30" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-17" target="ELZbtfNW_3VUk3NMvu52-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-17" value="Conv 2D (1 x 1 x 32 x 10)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="283" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-18" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 10 x 10 x 32&lt;br&gt;Output: 10 x 10 x 10&lt;br&gt;Input RF: 10&lt;br&gt;Output RF: 10&amp;nbsp;&lt;br&gt;# of parameters: 320&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-17">
+          <mxGeometry x="20" y="30" width="160" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-19" value="LogSoftmax" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="760" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-20" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 1 x 1 x 10&lt;br&gt;Output: 1 x 1 x 10&lt;br&gt;Input RF: 10&lt;br&gt;Output RF: 10&amp;nbsp;&lt;br&gt;# of parameters: 0&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-19">
+          <mxGeometry x="20" y="30" width="140" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ELZbtfNW_3VUk3NMvu52-42" target="ELZbtfNW_3VUk3NMvu52-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-42" value="GAP (10)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="522" y="360" width="180" height="130" as="geometry">
+            <mxRectangle x="90" y="440" width="170" height="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ELZbtfNW_3VUk3NMvu52-43" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Input: 10 x 10 x 10&lt;br&gt;Output: 1 x 1 x 10&lt;br&gt;Input RF: 10&lt;br&gt;Output RF: 10&amp;nbsp;&lt;br&gt;# of parameters: 0&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="ELZbtfNW_3VUk3NMvu52-42">
+          <mxGeometry x="20" y="30" width="140" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
