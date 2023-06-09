@@ -36,5 +36,6 @@ def plot_statistics(train_losses, train_acc, test_losses, test_acc):
     axs[0, 1].plot(test_losses)
     axs[0, 1].set_title("Test Loss")
     axs[1, 1].plot(test_acc)
+    axs[1, 1].axhline(99.4, color='r')
     axs[1, 1].set_title("Test Accuracy")
 
