@@ -19,12 +19,12 @@ In this session's assignment, I built a deep learning model to predict handwritt
 
 
 ## Model Architecture
+![Final Architecture](doc/final_network.png)
 
-
-## Summary of experiments
+## Summary of other experiments
 
 <p> 
-I tested several model architectures and model configurations and below  is a summary of the model design and the performance achieved. I realized that none of these networks worked well since the RF was too low and the network too shallow. Having 32 output channels in the network is making the model significantly heavy and making me to exhaust the 20k parameter limit. When I tried to limit the max channels to 16, I was able to add several more layers and get to much higher RF without breaching the parameter limit.
+I tested several model architectures and model configurations prior to getting the stipulated accuracy and below  is a summary of all the experiments and the performance achieved. I realized that none of these networks worked well since the RF was too low and the network too shallow. Having 32 output channels in the network is making the model significantly heavy and making me to exhaust the 20k parameter limit. When I tried to limit the max channels to 16, I was able to add several more layers and get to much higher RF without breaching the parameter limit.
 </p>
 
 ### Architecture 1: Max. accuracy: 98.1%
@@ -39,7 +39,7 @@ Num parameters: 14468
 ![experiment 2](doc/experiment_2.png)
 
 
-### Architecture 3: Max. Accuracy 98.75%
+### Architecture 3: Max. accuracy 98.75%
 Num parameters: 19764   
 Max. RF: 10
 ![experiment 3](doc/experiment_3.png)
