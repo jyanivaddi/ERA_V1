@@ -3,3 +3,4 @@ venv/*
 session_5/.ipynb_checkpoints
 */*.json
 data/
+*.pyc
