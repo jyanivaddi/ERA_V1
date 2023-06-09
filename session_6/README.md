@@ -3,9 +3,9 @@
 ## Contents
 * [Back Propagation](#BackPropagation)
 * [Introduction](#Introduction)
-* [Model Architecture and performance](#ModelArchitecture)
-* [Experiment Summary](#Summaryofotherexperiments)
-* [Learnings and Takeaways](#Learnings&Takeaways)
+* [Model Architecture and performance](#Model-Architecture)
+* [Experiment Summary](#Summary-of-other-experiments)
+* [Learnings and Takeaways](#Learnings-&-Takeaways)
 
 # Part 1: Back Propagation
 ## Excel based Back Propagation calculation
