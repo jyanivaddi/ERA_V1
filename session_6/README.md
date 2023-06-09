@@ -39,7 +39,7 @@ Num parameters: 14468
 ![experiment 2](doc/experiment_2.png)
 
 
-### Architecture 3: Accuracy 98.75%
+### Architecture 3: Max. Accuracy 98.75%
 Num parameters: 19764   
 Max. RF: 10
 ![experiment 3](doc/experiment_3.png)
