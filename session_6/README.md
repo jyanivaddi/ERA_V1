@@ -1,8 +1,8 @@
 # ERA V1 Session 6 - Back Propagation and advanced architectures
 
 ## Contents
-* [Back Propagation](#Back-Propagation)
-* [Introduction](#Introduction)
+* [Part 1: Back Propagation](#Part-1-Back-Propagation)
+* [Part 2: MNIST digits detection](#Part-2-MNIST-digits-detection)
 * [Model Architecture and performance](#Model-Architecture)
 * [Experiment Summary](#Summary-of-other-experiments)
 * [Learnings and Takeaways](#Learnings--Takeaways)
