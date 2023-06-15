@@ -495,7 +495,6 @@ class Model_5_Net(nn.Module):
             nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(10),
             nn.ReLU(),
-            nn.Dropout(0.1)
         ) 
 
         # Adaptive Average Pooling
