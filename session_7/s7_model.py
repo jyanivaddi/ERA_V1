@@ -85,9 +85,12 @@ class Model_1_Net(nn.Module):
         # Transition Block 1
         # Max Pool
         # input_size: 22 output_size = 11 
-        # rf_in: 7, s = 1, j_in = 1, j_out = 2, rf_out = 8
+        # rf_in: 7, s = 2, j_in = 1, j_out = 2, rf_out = 8
         self.pool1 = nn.MaxPool2d(2,2) 
+
         # 1x1 conv Conv Block 4
+        # input_size: 11 output_size = 11 
+        # rf_in: 8, s = 1, j_in = 2, j_out = 2, rf_out = 8
         self.convblock4 = nn.Sequential(
             nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
             nn.ReLU()
@@ -117,7 +120,7 @@ class Model_1_Net(nn.Module):
             nn.ReLU()
         )
 
-        # GAP
+        # Adaptive Average Pooling
         self.aap = nn.AdaptiveAvgPool2d((1,1))
 
     def forward(self, x):
@@ -150,7 +153,7 @@ class Model_2_Net(nn.Module):
         # input_size: 26 output_size = 24 
         # rf_in: 3, s = 1, j_in = 1, j_out = 1, rf_out = 5
         self.convblock2 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
@@ -158,57 +161,69 @@ class Model_2_Net(nn.Module):
         # input_size: 24 output_size = 22 
         # rf_in: 5, s = 1, j_in = 1, j_out = 1, rf_out = 7
         self.convblock3 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
+            nn.ReLU()
+        ) 
+
+        # Conv Block 4 
+        # input_size: 22 output_size = 20 
+        # rf_in: 7, s = 1, j_in = 1, j_out = 1, rf_out = 9
+        self.convblock4 = nn.Sequential(
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
         # Transition Block 1
         # Max Pool
-        # input_size: 22 output_size = 11 
-        # rf_in: 7, s = 1, j_in = 1, j_out = 2, rf_out = 8
+        # input_size: 20 output_size = 10 
+        # rf_in: 9, s = 2, j_in = 1, j_out = 2, rf_out = 10
         self.pool1 = nn.MaxPool2d(2,2) 
-        # 1x1 conv Conv Block 4
-        self.convblock4 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=8, kernel_size=(1, 1), padding=0, bias=False),
-            nn.ReLU()
-        ) 
 
-        # Conv Block 4
-        # input_size: 11 output_size = 9 
-        # rf_in: 8, s = 1, j_in = 2, j_out = 2, rf_out = 12
+        # Conv Block 5 
+        # input_size: 10 output_size = 8 
+        # rf_in: 10, s = 1, j_in = 2, j_out = 2, rf_out = 14
         self.convblock5 = nn.Sequential(
             nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
-        # Conv Block 5
-        # input_size: 9 output_size = 7 
-        # rf_in: 12, s = 1, j_in = 2, j_out = 2, rf_out = 16
+        # Conv Block 6 
+        # input_size: 8 output_size = 6 
+        # rf_in: 14, s = 1, j_in = 2, j_out = 2, rf_out = 18
         self.convblock6 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
-        )
+        ) 
 
-        # Conv Block 6
-        # input_size: 7 output_size = 5 
-        # rf_in: 16, s = 1, j_in = 2, j_out = 2, rf_out = 20
+        # Conv Block 7 
+        # input_size: 6 output_size = 4 
+        # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
         self.convblock7 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
-        )
+        ) 
 
-        # GAP
+        # 1x1 conv 
+        # input_size: 4 output_size = 4 
+        # rf_in: 22, s = 1, j_in = 2, j_out = 2, rf_out = 22
+        self.convblock8 = nn.Sequential(
+            nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
+            nn.ReLU()
+        ) 
+
+        # Adaptive Average Pooling
         self.aap = nn.AdaptiveAvgPool2d((1,1))
 
     def forward(self, x):
         x = self.convblock1(x)
         x = self.convblock2(x)
         x = self.convblock3(x)
-        x = self.pool1(x)
         x = self.convblock4(x)
+        x = self.pool1(x)
         x = self.convblock5(x)
         x = self.convblock6(x)
         x = self.convblock7(x)
+        x = self.convblock8(x)
         x = self.aap(x)
         x = x.view(-1,10)
         return F.log_softmax(x,dim=1)
