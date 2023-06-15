@@ -145,7 +145,7 @@ class Model_2_Net(nn.Module):
         # input_size: 28 output_size = 26 
         # rf_in: 1, s = 1, j_in = 1, j_out = 1, rf_out = 3
         self.convblock1 = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=1, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         )
 
@@ -153,7 +153,7 @@ class Model_2_Net(nn.Module):
         # input_size: 26 output_size = 24 
         # rf_in: 3, s = 1, j_in = 1, j_out = 1, rf_out = 5
         self.convblock2 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=10, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
@@ -161,7 +161,7 @@ class Model_2_Net(nn.Module):
         # input_size: 24 output_size = 22 
         # rf_in: 5, s = 1, j_in = 1, j_out = 1, rf_out = 7
         self.convblock3 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=10, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
@@ -169,7 +169,7 @@ class Model_2_Net(nn.Module):
         # input_size: 22 output_size = 20 
         # rf_in: 7, s = 1, j_in = 1, j_out = 1, rf_out = 9
         self.convblock4 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=10, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
@@ -183,7 +183,7 @@ class Model_2_Net(nn.Module):
         # input_size: 10 output_size = 8 
         # rf_in: 10, s = 1, j_in = 2, j_out = 2, rf_out = 14
         self.convblock5 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
+            nn.Conv2d(in_channels=10, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
             nn.ReLU()
         ) 
 
