@@ -482,8 +482,8 @@ class Model_5_Net(nn.Module):
         # input_size: 8 output_size = 6 
         # rf_in: 14, s = 1, j_in = 2, j_out = 2, rf_out = 18
         self.convblock6 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(in_channels=16, out_channels=14, kernel_size=(3, 3), padding=0, bias=False),
+            nn.BatchNorm2d(14),
             nn.ReLU(),
             nn.Dropout(0.1)
         ) 
@@ -492,8 +492,8 @@ class Model_5_Net(nn.Module):
         # input_size: 6 output_size = 4 
         # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
         self.convblock7 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=(3, 3), padding=0, bias=False),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(in_channels=14, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
+            nn.BatchNorm2d(12),
             nn.ReLU(),
             nn.Dropout(0.1)
         ) 
@@ -502,7 +502,7 @@ class Model_5_Net(nn.Module):
         # input_size: 6 output_size = 4 
         # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
         self.convblock8 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
+            nn.Conv2d(in_channels=12, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
             nn.BatchNorm2d(10),
             nn.ReLU(),
         ) 
@@ -519,7 +519,7 @@ class Model_5_Net(nn.Module):
         x = self.pool1(x)
         x = self.convblock5(x)
         x = self.convblock6(x)
-        #x = self.convblock7(x)
+        x = self.convblock7(x)
         x = self.convblock8(x)
         x = self.aap(x)
         x = x.view(-1,10)
