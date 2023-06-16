@@ -29,6 +29,7 @@ def model_train(model, device, train_loader, optimizer, train_acc, train_losses)
 
     train_acc.append(100*correct/processed)
     train_losses.append(train_loss/len(train_loader))
+    return 
 
 
 
@@ -51,6 +52,7 @@ def model_test(model, device, test_loader, test_acc, test_losses):
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
     test_losses.append(test_loss)
+    return test_loss
 
 
 
@@ -613,6 +615,7 @@ class Model_6_Net(nn.Module):
             nn.Conv2d(in_channels=12, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(12),
             nn.ReLU(),
+            nn.Dropout(0.1)
         ) 
 
         # Conv Block 8 
