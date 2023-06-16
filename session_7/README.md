@@ -105,12 +105,12 @@ __Link to the ipynb notebook: [here](./code_model_4.ipynb)__
 *  Compared the previous model, even though a layer of convolution was removed, the fall in accuracy was not drastic. Now the parameters are within the target criteria.
 * There is still some overfitting occuring after epoch 15. Need to add dropout to improve it.
 
+![Model_4_Results](doc/model_iteration_4_metrics.png)
+
 # Step 3: Optimizing Model Performance
 <p>
 In the previous step, I was able to get to the desired accuracy within the 15th epoch, albeit with higher parameters. In this step, I tried to get to the desired accuracy while staying below the 8000 parameter limit. In order to reduce the parameters, I changed the output channels in the 2nd convolution blocks from 16 to 14 and added more layers before the prediction layer to improve the RF from 20 to 22. Subsequently, I further reduced the number of output channels to 12 in both the first and second block and added more layers to further increase the RF to 26. Eventually at the 6th iteration, the model has achieved the final accuracy of 99.4% as shown in the plots below. 
 </p>
-
-![Model_4_Results](doc/model_iteration_4_metrics.png)
 
 ## Iteration 5 
 ![Model_5](doc/model_iteration_5.png)
