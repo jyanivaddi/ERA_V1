@@ -29,7 +29,7 @@ def model_train(model, device, train_loader, optimizer, train_acc, train_losses)
 
     train_acc.append(100*correct/processed)
     train_losses.append(train_loss/len(train_loader))
-    return 
+    return  loss.item()
 
 
 
