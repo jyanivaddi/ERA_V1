@@ -562,25 +562,15 @@ class Model_6_Net(nn.Module):
             nn.Dropout(0.1)
         ) 
 
-        # Conv Block 4 
-        # input_size: 22 output_size = 20 
-        # rf_in: 7, s = 1, j_in = 1, j_out = 1, rf_out = 9
-        self.convblock4 = nn.Sequential(
-            nn.Conv2d(in_channels=10, out_channels=10, kernel_size=(3, 3), padding=0, bias=False),
-            nn.BatchNorm2d(10),
-            nn.ReLU(),
-            nn.Dropout(0.1)
-        ) 
-
         # Transition Block 1
         # Max Pool
         # input_size: 20 output_size = 10 
-        # rf_in: 9, s = 2, j_in = 1, j_out = 2, rf_out = 10
+        # rf_in: 9, s = 2, j_in = 1, j_out = 2, rf_out = 8
         self.pool1 = nn.MaxPool2d(2,2) 
 
         # Conv Block 5 
         # input_size: 10 output_size = 8 
-        # rf_in: 10, s = 1, j_in = 2, j_out = 2, rf_out = 14
+        # rf_in: 8, s = 1, j_in = 2, j_out = 2, rf_out = 12
         self.convblock5 = nn.Sequential(
             nn.Conv2d(in_channels=10, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(12),
@@ -590,7 +580,7 @@ class Model_6_Net(nn.Module):
 
         # Conv Block 6 
         # input_size: 8 output_size = 6 
-        # rf_in: 14, s = 1, j_in = 2, j_out = 2, rf_out = 18
+        # rf_in: 12, s = 1, j_in = 2, j_out = 2, rf_out = 16
         self.convblock6 = nn.Sequential(
             nn.Conv2d(in_channels=12, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(12),
@@ -600,7 +590,7 @@ class Model_6_Net(nn.Module):
 
         # Conv Block 7 
         # input_size: 6 output_size = 4 
-        # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
+        # rf_in: 16, s = 1, j_in = 2, j_out = 2, rf_out = 20
         self.convblock7 = nn.Sequential(
             nn.Conv2d(in_channels=12, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(12),
@@ -610,7 +600,7 @@ class Model_6_Net(nn.Module):
 
         # Conv Block 7 
         # input_size: 6 output_size = 4 
-        # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
+        # rf_in: 20, s = 1, j_in = 2, j_out = 2, rf_out = 24
         self.convblock8 = nn.Sequential(
             nn.Conv2d(in_channels=12, out_channels=12, kernel_size=(3, 3), padding=0, bias=False),
             nn.BatchNorm2d(12),
@@ -620,7 +610,7 @@ class Model_6_Net(nn.Module):
 
         # Conv Block 8 
         # input_size: 6 output_size = 4 
-        # rf_in: 18, s = 1, j_in = 2, j_out = 2, rf_out = 22
+        # rf_in: 24, s = 1, j_in = 2, j_out = 2, rf_out = 24
         self.convblock9 = nn.Sequential(
             nn.Conv2d(in_channels=12, out_channels=10, kernel_size=(1, 1), padding=0, bias=False),
             nn.BatchNorm2d(10),
@@ -634,9 +624,9 @@ class Model_6_Net(nn.Module):
     def forward(self, x):
         x = self.convblock1(x)
         x = self.convblock2(x)
+        x = self.pool1(x)
         x = self.convblock3(x)
         #x = self.convblock4(x)
-        x = self.pool1(x)
         x = self.convblock5(x)
         x = self.convblock6(x)
         x = self.convblock7(x)
