@@ -1,98 +1,163 @@
-# ERA V1 Session 6 - Back Propagation and advanced architectures
+# ERA V1 Session 7 - Coding Practice
 
 ## Contents
-* [Part 1: Back Propagation](#Part-1-Back-Propagation)
-* [Part 2: MNIST digits detection](#Part-2-MNIST-digits-detection)
-* [Model Architecture and performance](#Model-Architecture)
-* [Experiment Summary](#Summary-of-other-experiments)
-* [Learnings and Takeaways](#Learnings--Takeaways)
+* [Introduction](#Introduction)
+* [Step 1: Model Set up](#Step-1-Model-SetUp-And-Skeleton)
+* [Step 2: Optimizing Model Skeleton](#Step-2-Optimizing-Model-Skeleton)
+* [Step 3: Optimizing Model Performance](#Step-3-Optimizing-Model-Performance)
+* [Conclusion and Takeaways](#Conclusion-And-Takeaways)
 
-# Part 1: Back Propagation
-## Excel based Back Propagation calculation
-Below is the snapshot of the back propagation. The excel sheet with the calculations is in the repo.
+# Introduction
+<p>In this exercise, we build several iterations of a neural network to progressively achieve a test accuracy of 99.4% (for atleast two successive epochs) within 15 epochs of training. The model should not have more than 8000 parameters. </p>
 
-![Back Prop](doc/back_prop.png)
+<p> I got the target accuracy within the constraints after 6 iterations. The following sections summarize each model iteration and the corresponding results.
+</p>
 
-When the learning rate was increased from 0.1 to 2.0, the rate of convergence has changed. The change in loss was very small for the smaller values of learning rate and did not converge. At the value of 2.0, the loss finally converged in around 40 iterations.
-
-![Learning Rate](doc/LR_experiments.png)
-
-# Part 2: MNIST digits detection 
-## Introduction
+# Step 1: Model SetUp And Skeleton
 <p>
-In this session's assignment, I built a deep learning model to predict handwritten digits from the MNIST dataset. The model contains 14372 parameters and achieved the required test accuracy of 99.4% within 13 training epochs. The maximum test accuracy during the 20 epochs of training was 99.6%.
- 
-Below is a preview of the MNIST dataset. Each image is a single channel grayscale image containing a handwritten digit from 0 to 9 and is of size 28 x 28. 
-
-![Data Preview](doc/dataset_preview.png)
+In this step we set up the basic building blocks of the model, define the structure, and get the model up and running. 
+We do this in one iteration as shown below: 
 </p>
 
+## Iteration 1 
+![Model_1](doc/model_iteration_1.png)
 
-## Model Architecture
+__Link to the ipynb notebook: [here](./code_model_1.ipynb)__
+### Target:
+* Set up the code structure
+* Build data loader
+* set up basic train, and test loop
+* set up optimizer
 
-After running several experiments, the details of which are explained in  [Experiment Summary](#summary-of-other-experiments), the following architecture was used to train the model.
+### Result:
+* __Max training accuracy (in 15 epochs): 88.23%__
+* __Max test accuracy (in 15 epochs): 88.26%__
+* Num parameters: 9178 
 
-![Final Architecture](doc/final_network_full_page.png)
+![Model_1_Results](doc/model_iteration_1_metrics.png)
 
-### Model Summary
-Here is a summary of the model architecture and the number of parameters. No bias terms were used in any of the layers. The model was trained for a total of 20 epochs. A maximum test accuracy of 99.57% was achieved. 
+### Analysis:
+*  Training accuracy has platueaed at around 87 by 4th epoch and has not increased
+* I need to improve the update the model skeleton to get better results before tuning the model for performance.
 
-![Model Summary](doc/model_summary.png) 
 
-### Model Performance
-The plots below show the train and test losses and accuracy achived during the 20 training epochs. 
-
-![Model Performance](doc/model_performance.png)
-
-Here are the concepts used and experimented with in this assignment: 
-* __Number of output channels:__ To me, the biggest takeaway from this assignment was the number of output channels. I was able to get to the 99.4% without breaching the 20k limit only by keeping the maximum channels to 16. When I tried 32 and 64, the parameter count has exploded within 1-2 layers. I did not however, experiment with 8 channels. 
-* __Dataset transformations:__ The train dataset was augmented by using  CenterCrop followed by resize, and RandomRotation transformations. 
-* __How many layers:__ The model used a total of 11 layers to make the predictions.
-* __MaxPooling:__ A single max pooling layer was used after the first four convolution blocks, when a RF of 9 was achieved.
-* __1x1 Convolutions:__ Once the network achieved the maximum RF of 22, a 1 x 1 convolution was used to reduce the number of channels from 16 to 10.
-* __3x3 Convolutions:__ A total of four successive 3 x 3 convolutions, each with 16 output channels and stride of 1 were used in the first block. In the second block, three more 3 x 3 convolution blocks with 16 output channels were used after which a 1x1 convolution block was used to reduce the channel count. 
-* __Receptive Field:__ The maximum Receptive field achived by the network was 22. In prior experiments, he maximum receptive field never reached beyond 10 and the network could not go beyond 98.3% accuracy. 
-* __SoftMax:__ Softmax layer was used in the end to calculate the prediction likelihood of all classes.
-* __Learning Rate:__ A learning rate of 0.01 was used, which was reduced to 0.001 after the 15th epoch. I noticed that around 13th epoch, the network accuracy was reaching a plateau and fluctuating and so added the 10% drop post which the accuracy increased again.
-* __Kernels and how do we decide the number of kernels?:__ Initially, I experimented with 7 x 7 and 5 x 5 kernels but saw that the network was not achieving good receptive field without hitting the 20k parameter ceiling. However, I did not observe any major performance hit with the larger kernels. This may be the case because of the smaller dataset size.
-* __Batch Normalization:__ I used batch normalization after each convolution block untill the GAP layer. In my experiments, I saw an increase in accuracy from 98.1% to 98.5% by adding batch normalization. 
-* __Image Normalization:__ The entire dataset was normalized by the mean of 0.1307 and std of 0.3081.  
-* __Position of MaxPooling:__ I applied MaxPooling after the first 4 convolution blocks to downsample the image size from 20 x 20 to 10 x 10. I found it sufficient to use a single max pooling layer since I did not use strided convolutions at the beginning and the image size was progressively reducing.  
-* __Position of Transition Layer:__ Instead of a FC layer, I used a 1 x 1 convolution layer to change the number of channels from 16 to 10. I used this just prior to the GAP layer. 
-* __DropOut:__ Dropout should be used when there is overfitting occuring in the network. Overfitting means that the network has good accuracy on train data but does poorly on test data. In my case, the train and test accuracy were very close to each other and so I did not see any overfitting occuring. So I did not use dropout in my network.
-* __The distance of MaxPooling from Prediction:__ The only max pooling layer I used was 5 layers away from the output. I did not experiment by moving the maxpooling layer closer in the final architecture. In the previous architectures I tried, the maxpooling was only 1-2 layers away from the output and the network did not go beyond 98.75%.
-* __The distance of Batch Normalization from Prediction:__ I used batch norm till the final GAP layer. I also tested the network by removing the last batch norm but the result did not change. 
-* __When do we stop convolutions and go ahead with a larger kernel or other alternative:__ Since I did not use strided convolutions (other than the maxpooling), I moved from convolution to 1 x 1 convolution when the image size got reduced to 4x4.
-* __How do we know our network is not going well, comparatively, very early:__ In all the experiments, the model was converging, albeit slowly and reached maximum accuracy of atleast ~97% in each case. If I had noticed divergence, I would have stopped and changed the model.
-* __Batch Size, and Effects of batch size:__ Kept the batch size constant at 128.
-
-## Summary of other experiments
-
-<p> 
-I tested several model architectures and model configurations prior to getting the stipulated accuracy and below  is a summary of all the experiments and the performance achieved. I realized that none of these networks worked well since the RF was too low and the network too shallow. Having 32 output channels in the network is making the model significantly heavy and making me to exhaust the 20k parameter limit. When I tried to limit the max channels to 16, I was able to add several more layers and get to much higher RF without breaching the parameter limit.
+# Step 2: Optimizing Model Skeleton
+<p> Now that our model is up and running, time to optimize the skeleton. In the architectures that I tried, I had two convolution blocks separated by a max pooling block. The first set of convolution blocks had 10 output channels and the second set of blocks had 16 output channels which were then passed through an adaptive average pooling layer followed by softmax. The iterations are described below: 
 </p>
 
-### Architecture 1: Max. accuracy: 98.1%
-Num parameters: 5828   
-Max. RF: 10
-![experiment 1](doc/experiment_1.png)
+## Iteration 2 
+![Model_2](doc/model_iteration_2.png)
+
+__Link to the ipynb notebook: [here](./code_model_2.ipynb)__
+### Target:
+* The previous model had achieved an RF of 20 and had ~87% accuracy. In this model,I tried to increase the RF to 22 and slightly reduce the parameter count.
+* Instead of progressively increasing and then decreasing the channel count, in this model, I had kept the channel count constant at 10 and 16 in two convolution blocks.
+
+### Results:
+* Num parameters: 8998
+* Max RF: 22
+* __Max train accuracy (in 15 epochs): 98.4%__
+* __Max test accuracy (in 15 epochs): 98.2%__
+
+![Model_2_Results](doc/model_iteration_2_metrics.png)
+
+### Analysis:
+*  The train accuracy started off very low (< 20%) and increased to 90% in the 3rd epoch.
+* Till the 10th epoch, the test accuracy was consistently higher than the train accuracy but after that the train accuracy increased disproportionately. This suggests that after 11th epoch, the model started to overfit.
+
+## Iteration 3 
+![Model_3](doc/model_iteration_3.png)
+
+__Link to the ipynb notebook: [here](./code_model_3.ipynb)__
+
+### Target:
+* Reduce overfitting by adding Batch Normalization to every convolution block till the Adaptive Average Pool layer
+
+### Result:
+* Num parameters: 9194
+* Max RF: 22
+* __Max Train accuracy (in 15 epochs): 99.4%__
+* __Max test accuracy (in 15 epochs): 99.4%__
+
+![Model_3_Results](doc/model_iteration_3_metrics.png)
+
+### Analysis:
+*  Compared the previous model, the magnitude of overfit has considerably reduced.
+* The training accuracy is plateauing at 99.4% after epoch 14.
+* The model still has ~ 1200 more parameters than the desired target so I need to fix that in the next model iteration.
+
+##  Iteration 4 
+![Model_4](doc/model_iteration_4.png)
+
+__Link to the ipynb notebook: [here](./code_model_4.ipynb)__
+
+### Target:
+* Reduce the number of parameters while trying to maintain the accuracy.
+* I removed an extra layer at the end by making one of the convolutions from 16 to 10 channels and getting rid of the 1x1 convolution block.
+
+### Result:
+* Num parameters: 7218
+* Max RF: 20
+* __Max Train accuracy (in 15 epochs): 99.25%.__
+* __Max test accuracy (in 15 epochs): 99.0%__
+
+![Model_4_Results](doc/model_iteration_4_metrics.png)
+
+### Analysis:
+*  Compared the previous model, even though a layer of convolution was removed, the fall in accuracy was not drastic. Now the parameters are within the target criteria.
+* There is still some overfitting occuring after epoch 15. Need to add dropout to improve it.
+
+# Step 3: Optimizing Model Performance
+<p>
+In the previous step, I was able to get to the desired accuracy within the 15th epoch, albeit with higher parameters. In this step, I tried to get to the desired accuracy while staying below the 8000 parameter limit. In order to reduce the parameters, I changed the output channels in the 2nd convolution blocks from 16 to 14 and added more layers before the prediction layer to improve the RF from 20 to 22. Subsequently, I further reduced the number of output channels to 12 in both the first and second block and added more layers to further increase the RF to 26. Eventually at the 6th iteration, the model has achieved the final accuracy of 99.4% as shown in the plots below. 
+</p>
+
+## Iteration 5 
+![Model_5](doc/model_iteration_5.png)
+
+__Link to the ipynb notebook: [here](./code_model_5.ipynb)__
+
+### Target:
+* Increase model capacity by adding more convolution layers and reducing the output channels from 16 to 14. 
+* Add LR scheduler
+
+### Result:
+* Num parameters: 7902
+* Max RF: 22
+* __Max Train accuracy (in 15 epochs): 98.87%.__
+* __Max test accuracy (in 15 epochs): 99.25%__
+
+![Model_5_Results](doc/model_iteration_5_metrics.png)
+
+### Analysis:
+*  Increasing model capacity has improved the accuracy but it has not yet reached the target. 
+
+## Iteration 6 
+![Model_6](doc/model_iteration_6.png)
+
+__Link to the ipynb notebook: [here](./code_model_6.ipynb)__
+
+### Target:
+* Move maxpool at RF 5 instead of 9.
+* Add image augmentations by adding random rotation
+* Add step LR scheduler after 8th epoch
+
+### Result:
+* Num parameters: 7756
+* Max RF: 26
+* __Max Train accuracy (in 15 epochs): 98.14%__
+* __Max test accuracy (in 15 epochs): 99.43%__
+
+![Model_6_Results](doc/model_iteration_6_metrics.png)
+
+### Analysis:
+* By moving maxpool earlier, the overall RF has become 26 compared to 22 in the previous iteration. 
+* Additionally, adding the scheduler helped improve the model test accuracy to 99.4% 
+* The desired target of 99.4% accuracy was achieved around 8th epoch and has since maintained the accuracy rate as seen in the plots above.
 
 
-### Architecture 2: Max. accuracy: 98.5%
-Num parameters: 14468  
- Max. RF: 8
-![experiment 2](doc/experiment_2.png)
-
-
-### Architecture 3: Max. accuracy 98.75%
-Num parameters: 19764   
-Max. RF: 10
-![experiment 3](doc/experiment_3.png)
-
-
-## Learnings & Takeaways
-Following is a summary of my learnings from this assignment:
-* The importance of network depth and receptive field in the DL model. 
-* If the model is getting stuck at a local minima, we must change the learning rate so that it can converge and make progress towards the optimal cost.
-* Batch Normalization does improve the accuracy of the model 
-
+# Conclusion And Takeaways
+* The model was able to achieve the 99.4% test accuracy only when the RF was atleast 22. 
+* In order to get a RF of 26 while keeping the number of parameters under 8000, the number of output convolution channels was reduced from 16 to 12 eventually.
+* When the accuracy and loss reached a plateau, adding a scheduler helps to improve the metrics.
+* Dropout and batchnorm were used to reduce the overfitting. 
