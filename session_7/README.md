@@ -34,12 +34,11 @@ __Link to the ipynb notebook: [here](./code_model_1.ipynb)__
 * __Max test accuracy (in 15 epochs): 88.26%__
 * Num parameters: 9178 
 
-![Model_1_Results](doc/model_iteration_1_metrics.png)
-
 ### Analysis:
 *  Training accuracy has platueaed at around 87 by 4th epoch and has not increased
 * I need to improve the update the model skeleton to get better results before tuning the model for performance.
 
+![Model_1_Results](doc/model_iteration_1_metrics.png)
 
 # Step 2: Optimizing Model Skeleton
 <p> Now that our model is up and running, time to optimize the skeleton. In the architectures that I tried, I had two convolution blocks separated by a max pooling block. The first set of convolution blocks had 10 output channels and the second set of blocks had 16 output channels which were then passed through an adaptive average pooling layer followed by softmax. The iterations are described below: 
@@ -59,11 +58,11 @@ __Link to the ipynb notebook: [here](./code_model_2.ipynb)__
 * __Max train accuracy (in 15 epochs): 98.4%__
 * __Max test accuracy (in 15 epochs): 98.2%__
 
-![Model_2_Results](doc/model_iteration_2_metrics.png)
-
 ### Analysis:
 *  The train accuracy started off very low (< 20%) and increased to 90% in the 3rd epoch.
 * Till the 10th epoch, the test accuracy was consistently higher than the train accuracy but after that the train accuracy increased disproportionately. This suggests that after 11th epoch, the model started to overfit.
+
+![Model_2_Results](doc/model_iteration_2_metrics.png)
 
 ## Iteration 3 
 ![Model_3](doc/model_iteration_3.png)
@@ -79,12 +78,12 @@ __Link to the ipynb notebook: [here](./code_model_3.ipynb)__
 * __Max Train accuracy (in 15 epochs): 99.4%__
 * __Max test accuracy (in 15 epochs): 99.4%__
 
-![Model_3_Results](doc/model_iteration_3_metrics.png)
-
 ### Analysis:
 *  Compared the previous model, the magnitude of overfit has considerably reduced.
 * The training accuracy is plateauing at 99.4% after epoch 14.
 * The model still has ~ 1200 more parameters than the desired target so I need to fix that in the next model iteration.
+
+![Model_3_Results](doc/model_iteration_3_metrics.png)
 
 ##  Iteration 4 
 ![Model_4](doc/model_iteration_4.png)
@@ -101,8 +100,6 @@ __Link to the ipynb notebook: [here](./code_model_4.ipynb)__
 * __Max Train accuracy (in 15 epochs): 99.25%.__
 * __Max test accuracy (in 15 epochs): 99.0%__
 
-![Model_4_Results](doc/model_iteration_4_metrics.png)
-
 ### Analysis:
 *  Compared the previous model, even though a layer of convolution was removed, the fall in accuracy was not drastic. Now the parameters are within the target criteria.
 * There is still some overfitting occuring after epoch 15. Need to add dropout to improve it.
@@ -111,6 +108,8 @@ __Link to the ipynb notebook: [here](./code_model_4.ipynb)__
 <p>
 In the previous step, I was able to get to the desired accuracy within the 15th epoch, albeit with higher parameters. In this step, I tried to get to the desired accuracy while staying below the 8000 parameter limit. In order to reduce the parameters, I changed the output channels in the 2nd convolution blocks from 16 to 14 and added more layers before the prediction layer to improve the RF from 20 to 22. Subsequently, I further reduced the number of output channels to 12 in both the first and second block and added more layers to further increase the RF to 26. Eventually at the 6th iteration, the model has achieved the final accuracy of 99.4% as shown in the plots below. 
 </p>
+
+![Model_4_Results](doc/model_iteration_4_metrics.png)
 
 ## Iteration 5 
 ![Model_5](doc/model_iteration_5.png)
@@ -127,10 +126,10 @@ __Link to the ipynb notebook: [here](./code_model_5.ipynb)__
 * __Max Train accuracy (in 15 epochs): 98.87%.__
 * __Max test accuracy (in 15 epochs): 99.25%__
 
-![Model_5_Results](doc/model_iteration_5_metrics.png)
-
 ### Analysis:
 *  Increasing model capacity has improved the accuracy but it has not yet reached the target. 
+
+![Model_5_Results](doc/model_iteration_5_metrics.png)
 
 ## Iteration 6 
 ![Model_6](doc/model_iteration_6.png)
@@ -148,13 +147,12 @@ __Link to the ipynb notebook: [here](./code_model_6.ipynb)__
 * __Max Train accuracy (in 15 epochs): 98.14%__
 * __Max test accuracy (in 15 epochs): 99.43%__
 
-![Model_6_Results](doc/model_iteration_6_metrics.png)
-
 ### Analysis:
 * By moving maxpool earlier, the overall RF has become 26 compared to 22 in the previous iteration. 
 * Additionally, adding the scheduler helped improve the model test accuracy to 99.4% 
 * The desired target of 99.4% accuracy was achieved around 8th epoch and has since maintained the accuracy rate as seen in the plots above.
 
+![Model_6_Results](doc/model_iteration_6_metrics.png)
 
 # Conclusion And Takeaways
 * The model was able to achieve the 99.4% test accuracy only when the RF was atleast 22. 
