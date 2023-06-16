@@ -30,9 +30,10 @@ __Link to the ipynb notebook: [here](./code_model_1.ipynb)__
 * set up optimizer
 
 ### Result:
+* Num parameters: 9178 
+* Max RF: 20
 * __Max training accuracy (in 15 epochs): 88.23%__
 * __Max test accuracy (in 15 epochs): 88.26%__
-* Num parameters: 9178 
 
 ### Analysis:
 *  Training accuracy has platueaed at around 87 by 4th epoch and has not increased
