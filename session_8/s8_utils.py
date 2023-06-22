@@ -82,19 +82,18 @@ def preview_images(train_loader, class_names, num_rows = 5, num_cols = 5):
 def show_incorrect_predictions(incorrect_predictions, class_names, num_rows = 5, num_cols = 5):
     cnt = 0
     num_images_to_preview = num_rows*num_cols
+    fig = plt.figure(figsize=(num_rows, num_cols))
     for this_pred in incorrect_predictions:
         orig_img = this_pred[0]
         target_label = this_pred[1]
         predicted_label = this_pred[2]
         output_label = this_pred[3]
-        plt.subplot(num_rows,num_cols,cnt+1)
-        plt.tight_layout()
+        ax = fig.add_subplot(num_rows, num_cols, cnt+1,xticks=[],yticks=[])
+        #plt.subplot(num_rows,num_cols,cnt+1)
         this_img = np.asarray(orig_img)
         plt.imshow(this_img.transpose((1,2,0)))
         title_str = f"{class_names[str(target_label.item())]}/{class_names[str(predicted_label.item())]}"
-        plt.title(title_str)
-        plt.xticks([])
-        plt.yticks([])
+        ax.set_title(title_str)
         cnt+=1
         if cnt == num_images_to_preview:
             break
