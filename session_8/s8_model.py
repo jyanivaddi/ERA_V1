@@ -63,52 +63,13 @@ def model_test(model, device, test_loader, test_acc, test_losses):
 
 class Model_Net(nn.Module):
 
-    def conv_block(self, in_channels, out_channels, kernel_size=3, padding=0):
-        # Define Conv Block
-        conv_block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, 
-                      out_channels=out_channels, 
-                      kernel_size=(kernel_size, kernel_size), 
-                      padding=padding, 
-                      bias=False),
-            self.norm_func(out_channels),
-            nn.ReLU(),
-            nn.Dropout(self.drop_out_probability)
-        )
-        return conv_block
-
-    def transition_block_with_max_pool(self, in_channels, out_channels):
-        transition_block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, 
-                        out_channels= out_channels,
-                        kernel_size = (1,1),
-                        padding=0,
-                        bias=False),
-            self.norm_func(out_channels),
-            nn.ReLU(),
-            nn.Dropout(self.drop_out_probability),
-            nn.MaxPool2d(2,2),
-        )
-        return transition_block
-
-    def transition_block_wo_max_pool(self, in_channels, out_channels):
-        transition_block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, 
-                        out_channels= out_channels,
-                        kernel_size = (1,1),
-                        padding=0,
-                        bias=False),
-        )
-        return transition_block
-
-
     def __init__(self, norm_type='bn'):
         super().__init__()
 
-        if norm_type == 'bn':
+        if norm_type == 'batch_norm':
             self.norm_func = nn.BatchNorm2d
-        else:
-            self.norm_func = None
+        elif norm_type == 'layer_norm':
+            self.norm_func = nn.LayerNorm
 
         self.drop_out_probability = 0.05
 
@@ -171,6 +132,46 @@ class Model_Net(nn.Module):
         self.transition_block_3 = self.transition_block_wo_max_pool(32,10)
 
 
+
+    def conv_block(self, in_channels, out_channels, kernel_size=3, padding=0):
+        # Define Conv Block
+        conv_block = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, 
+                      out_channels=out_channels, 
+                      kernel_size=(kernel_size, kernel_size), 
+                      padding=padding, 
+                      bias=False),
+            self.norm_func(out_channels),
+            nn.ReLU(),
+            nn.Dropout(self.drop_out_probability)
+        )
+        return conv_block
+
+    def transition_block_with_max_pool(self, in_channels, out_channels):
+        transition_block = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, 
+                        out_channels= out_channels,
+                        kernel_size = (1,1),
+                        padding=0,
+                        bias=False),
+            self.norm_func(out_channels),
+            nn.ReLU(),
+            nn.Dropout(self.drop_out_probability),
+            nn.MaxPool2d(2,2),
+        )
+        return transition_block
+
+    def transition_block_wo_max_pool(self, in_channels, out_channels):
+        transition_block = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, 
+                        out_channels= out_channels,
+                        kernel_size = (1,1),
+                        padding=0,
+                        bias=False),
+        )
+        return transition_block
+
+    
     def forward(self, x):
         x = self.conv_block_1_1(x)
         x = self.conv_block_1_2(x)
