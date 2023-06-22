@@ -70,10 +70,10 @@ class Model_Net(nn.Module):
             self.norm_func = nn.BatchNorm2d
             self.args = {}
         elif norm_type == 'layer_norm':
-            self.norm_func = nn.GroupNorm(num_groups=1)
+            self.norm_func = nn.GroupNorm
             self.args = {"num_groups":1}
         else:
-            self.norm_func = nn.GroupNorm(num_groups=num_groups)
+            self.norm_func = nn.GroupNorm
             self.args = {"num_groups":num_groups}
 
         self.drop_out_probability = 0.02
