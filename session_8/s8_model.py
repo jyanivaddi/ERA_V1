@@ -59,8 +59,6 @@ def model_test(model, device, test_loader, test_acc, test_losses):
 # input_size: 24 output_size = 12 
 # rf_in: 5, s = 2, j_in = 1, j_out = 2, rf_out = 6
 
-# input_size: 12 output_size = 10 
-# rf_in: 6, s = 1, j_in = 2, j_out = 2, rf_out = 10
 
 
 class Model_Net(nn.Module):
@@ -114,18 +112,63 @@ class Model_Net(nn.Module):
 
         self.drop_out_probability = 0.05
 
-        self.conv_block_1_1 = self.conv_block(3, 16, padding=1) # 32
-        self.conv_block_1_2 = self.conv_block(16, 16, padding=1) # 32
-        self.transition_block_1 = self.transition_block_with_max_pool(16,32) # 16
-        self.conv_block_2_1 = self.conv_block(32,32, padding=1) # 16
-        self.conv_block_2_2 = self.conv_block(32,32, padding=1) # 16
-        self.conv_block_2_3 = self.conv_block(32,32, padding=1) # 16
-        self.transition_block_2 = self.transition_block_with_max_pool(32,64) # 8
-        self.conv_block_3_1 = self.conv_block(64,64, padding=1) # 8
-        self.conv_block_3_2 = self.conv_block(64,64, padding=1)  # 8
-        self.conv_block_3_3 = self.conv_block(64,64, padding=1) # 8
-        self.aap = nn.AdaptiveAvgPool2d((1,1)) # 1
-        self.transition_block_3 = self.transition_block_wo_max_pool(64,10)
+        # input_size: 32 output_size = 32 
+        # rf_in: 1, k=3, s = 1, p=1, j_in = 1, j_out = 1, rf_out = 3
+        self.conv_block_1_1 = self.conv_block(3, 16, padding=1) 
+
+        # input_size: 32 output_size = 32 
+        # rf_in: 3, k=3, s = 1, p=1, j_in = 1, j_out = 1, rf_out = 5
+        self.conv_block_1_2 = self.conv_block(16, 16, padding=1) 
+
+        # Max Pool
+        # input_size: 32 output_size = 16 
+        # rf_in: 5, k=2, s = 2, p=0, j_in = 1, j_out = 2, rf_out = 6
+        # 1 x 1 
+        # input_size: 16 output_size = 16 
+        # rf_in: 6, k=1, s = 1, p=0, j_in = 2, j_out = 2, rf_out = 6
+        self.transition_block_1 = self.transition_block_with_max_pool(16,32) 
+
+        # input_size: 16 output_size = 16 
+        # rf_in: 6, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 10
+        self.conv_block_2_1 = self.conv_block(32,32, padding=1) 
+
+        # input_size: 16 output_size = 16 
+        # rf_in: 10, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 14
+        self.conv_block_2_2 = self.conv_block(32,32, padding=1) 
+
+        # input_size: 16 output_size = 16 
+        # rf_in: 14, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 18
+        self.conv_block_2_3 = self.conv_block(32,32, padding=1) 
+
+        # Max Pool
+        # input_size: 16 output_size = 8 
+        # rf_in: 18, k=2, s = 2, p=0, j_in = 2, j_out = 4, rf_out = 20
+        # 1 x 1 
+        # input_size: 8 output_size = 8 
+        # rf_in: 20, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 20        
+        self.transition_block_2 = self.transition_block_with_max_pool(32,32) 
+
+        # input_size: 8 output_size = 8 
+        # rf_in: 20, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 28
+        self.conv_block_3_1 = self.conv_block(32,32, padding=1) 
+
+        # input_size: 8 output_size = 8 
+        # rf_in: 28, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 36
+        self.conv_block_3_2 = self.conv_block(32,32, padding=1)  
+
+        # input_size: 8 output_size = 8 
+        # rf_in: 36, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 44
+        self.conv_block_3_3 = self.conv_block(32,32, padding=1) 
+
+        # AAP
+        # input_size: 8 output_size = 1 
+        # rf_in: 44, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 44        
+        self.aap = nn.AdaptiveAvgPool2d((1,1)) 
+
+        # 1 x 1 
+        # input_size: 1 output_size = 1 
+        # rf_in: 44, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 44        
+        self.transition_block_3 = self.transition_block_wo_max_pool(32,10)
 
 
     def forward(self, x):
