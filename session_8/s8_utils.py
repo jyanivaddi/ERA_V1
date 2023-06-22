@@ -60,6 +60,7 @@ def get_incorrect_predictions(model, test_loader, device):
             pred = output.argmax(dim=1)
             for d, t, p, o in zip(data, target,pred, output):
                 if not p.eq(t.view_as(p)).item():
+                    print(p, o)
                     incorrect_predictions.append(
                         [d.cpu(), t.cpu(), p.cpu(),o[p.item()].cpu()]
                     )
@@ -85,13 +86,13 @@ def show_incorrect_predictions(incorrect_predictions, class_names, num_rows = 5,
     for this_pred in incorrect_predictions:
         orig_img = this_pred[0]
         target_label = this_pred[1]
-        predicted_img = this_pred[2]
+        predicted_label = this_pred[2]
         output_label = this_pred[3]
         plt.subplot(num_rows,num_cols,cnt+1)
         plt.tight_layout()
         this_img = np.asarray(orig_img)
         plt.imshow(this_img.transpose((1,2,0)))
-        title_str = f"{class_names[str(target_label.item())]}/{class_names[str(output_label.item())]}"
+        title_str = f"{class_names[str(target_label.item())]}/{class_names[str(predicted_label.item())]}"
         plt.title(title_str)
         plt.xticks([])
         plt.yticks([])
