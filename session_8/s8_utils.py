@@ -60,7 +60,6 @@ def get_incorrect_predictions(model, test_loader, device):
             pred = output.argmax(dim=1)
             for d, t, p, o in zip(data, target,pred, output):
                 if not p.eq(t.view_as(p)).item():
-                    print(p, o)
                     incorrect_predictions.append(
                         [d.cpu(), t.cpu(), p.cpu(),o[p.item()].cpu()]
                     )
