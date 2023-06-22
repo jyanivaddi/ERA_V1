@@ -112,20 +112,20 @@ class Model_Net(nn.Module):
         else:
             self.norm_func = None
 
-        self.drop_out_probability = 0.1
+        self.drop_out_probability = 0.05
 
-        self.conv_block_1_1 = self.conv_block(3, 32, padding=1) # 32
-        self.conv_block_1_2 = self.conv_block(32, 32, padding=1) # 32
-        self.transition_block_1 = self.transition_block_with_max_pool(32,64) # 16
-        self.conv_block_2_1 = self.conv_block(64,64, padding=1) # 16
-        self.conv_block_2_2 = self.conv_block(64,64, padding=1) # 16
-        self.conv_block_2_3 = self.conv_block(64,64, padding=1) # 16
-        self.transition_block_2 = self.transition_block_with_max_pool(64,128) # 8
-        self.conv_block_3_1 = self.conv_block(128,128, padding=1) # 8
-        self.conv_block_3_2 = self.conv_block(128,128, padding=1)  # 8
-        self.conv_block_3_3 = self.conv_block(128,128, padding=1) # 8
+        self.conv_block_1_1 = self.conv_block(3, 16, padding=1) # 32
+        self.conv_block_1_2 = self.conv_block(16, 16, padding=1) # 32
+        self.transition_block_1 = self.transition_block_with_max_pool(16,32) # 16
+        self.conv_block_2_1 = self.conv_block(32,32, padding=1) # 16
+        self.conv_block_2_2 = self.conv_block(32,32, padding=1) # 16
+        self.conv_block_2_3 = self.conv_block(32,32, padding=1) # 16
+        self.transition_block_2 = self.transition_block_with_max_pool(32,64) # 8
+        self.conv_block_3_1 = self.conv_block(64,64, padding=1) # 8
+        self.conv_block_3_2 = self.conv_block(64,64, padding=1)  # 8
+        self.conv_block_3_3 = self.conv_block(64,64, padding=1) # 8
         self.aap = nn.AdaptiveAvgPool2d((1,1)) # 1
-        self.transition_block_3 = self.transition_block_wo_max_pool(128,10)
+        self.transition_block_3 = self.transition_block_wo_max_pool(64,10)
 
 
     def forward(self, x):
