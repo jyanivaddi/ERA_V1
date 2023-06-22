@@ -63,15 +63,17 @@ def model_test(model, device, test_loader, test_acc, test_losses):
 
 class Model_Net(nn.Module):
 
-    def __init__(self, norm_type='bn'):
+    def __init__(self, norm_type='batch_norm', num_groups = 1):
         super().__init__()
 
         if norm_type == 'batch_norm':
             self.norm_func = nn.BatchNorm2d
         elif norm_type == 'layer_norm':
-            self.norm_func = nn.LayerNorm
+            self.norm_func = nn.GroupNorm(num_groups=1)
+        else:
+            self.norm_func = nn.GroupNorm(num_groups=num_groups)
 
-        self.drop_out_probability = 0.05
+        self.drop_out_probability = 0.02
 
         # input_size: 32 output_size = 32 
         # rf_in: 1, k=3, s = 1, p=1, j_in = 1, j_out = 1, rf_out = 3
@@ -130,8 +132,6 @@ class Model_Net(nn.Module):
         # input_size: 1 output_size = 1 
         # rf_in: 44, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 44        
         self.transition_block_3 = self.transition_block_wo_max_pool(32,10)
-
-
 
     def conv_block(self, in_channels, out_channels, kernel_size=3, padding=0):
         # Define Conv Block
