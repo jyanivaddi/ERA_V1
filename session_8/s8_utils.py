@@ -37,7 +37,7 @@ def preview_batch_images(train_loader):
         plt.xticks([])
         plt.yticks([])
 
-def plot_statistics(train_losses, train_acc, test_losses, test_acc):
+def plot_statistics(train_losses, train_acc, test_losses, test_acc, target_test_acc = 99):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
     axs[0, 0].plot(train_losses)
     axs[0, 0].set_title("Training Loss")
@@ -46,6 +46,6 @@ def plot_statistics(train_losses, train_acc, test_losses, test_acc):
     axs[0, 1].plot(test_losses)
     axs[0, 1].set_title("Test Loss")
     axs[1, 1].plot(test_acc)
-    axs[1, 1].axhline(99.4, color='r')
+    axs[1, 1].axhline(target_test_acc, color='r')
     axs[1, 1].set_title("Test Accuracy")
 
