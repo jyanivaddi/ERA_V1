@@ -68,13 +68,13 @@ class Model_Net(nn.Module):
 
         if norm_type == 'batch_norm':
             self.norm_func = nn.BatchNorm2d
-            self.args = {}
+            self.args = [] 
         elif norm_type == 'layer_norm':
             self.norm_func = nn.GroupNorm
-            self.args = {"num_groups":1}
+            self.args = [1]
         else:
             self.norm_func = nn.GroupNorm
-            self.args = {"num_groups":num_groups}
+            self.args = [num_groups]
 
         self.drop_out_probability = 0.02
 
@@ -137,7 +137,7 @@ class Model_Net(nn.Module):
         self.transition_block_3 = self.transition_block_wo_max_pool(32,10)
 
     def conv_block(self, in_channels, out_channels, kernel_size=3, padding=0):
-        self.args["num_features"] = out_channels
+        self.args.append(out_channels)
         # Define Conv Block
         conv_block = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, 
@@ -145,21 +145,21 @@ class Model_Net(nn.Module):
                       kernel_size=(kernel_size, kernel_size), 
                       padding=padding, 
                       bias=False),
-            self.norm_func(**self.args),
+            self.norm_func(*self.args),
             nn.ReLU(),
             nn.Dropout(self.drop_out_probability)
         )
         return conv_block
 
     def transition_block_with_max_pool(self, in_channels, out_channels):
-        self.args["num_features"] = out_channels
+        self.args.append(out_channels)
         transition_block = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, 
                         out_channels= out_channels,
                         kernel_size = (1,1),
                         padding=0,
                         bias=False),
-            self.norm_func(**self.args),
+            self.norm_func(*self.args),
             nn.ReLU(),
             nn.Dropout(self.drop_out_probability),
             nn.MaxPool2d(2,2),
