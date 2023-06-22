@@ -50,7 +50,7 @@ def plot_statistics(train_losses, train_acc, test_losses, test_acc, target_test_
     axs[1, 1].axhline(target_test_acc, color='r')
     axs[1, 1].set_title("Test Accuracy")
 
-def get_incorrect_preictions(model, test_loader, device):
+def get_incorrect_predictions(model, test_loader, device):
     model.eval()
     incorrect_predictions = []
     with torch.no_grad():
