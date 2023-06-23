@@ -79,7 +79,7 @@ def preview_images(train_loader, class_names, num_rows = 5, num_cols = 5):
         #this_img = np.asarray(batch_data[cnt])
         this_img = np.asarray(normalized_tensor_img)
         plt.imshow(this_img.transpose((1,2,0)))
-        plt.title(class_names[str(batch_label[cnt].item())])
+        #plt.title(class_names[str(batch_label[cnt].item())])
         plt.xticks([])
         plt.yticks([])
     plt.tight_layout()
