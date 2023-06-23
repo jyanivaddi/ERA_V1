@@ -127,7 +127,7 @@ class Model_Net(nn.Module):
 
         # input_size: 8 output_size = 8 
         # rf_in: 36, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 44
-        self.conv_block_3_3 = self.conv_block(32,32, padding=1) 
+        self.conv_block_3_3 = self.conv_block(32,64, padding=1) 
 
         # AAP
         # input_size: 8 output_size = 1 
@@ -137,7 +137,7 @@ class Model_Net(nn.Module):
         # 1 x 1 
         # input_size: 1 output_size = 1 
         # rf_in: 44, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 44        
-        self.transition_block_3 = self.transition_block_wo_max_pool(32,10)
+        self.transition_block_3 = self.transition_block_wo_max_pool(64,10)
 
     def conv_block(self, in_channels, out_channels, kernel_size=3, padding=0):
         self.norm_args.append(out_channels)
