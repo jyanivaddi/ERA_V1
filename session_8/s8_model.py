@@ -83,11 +83,11 @@ class Model_Net(nn.Module):
 
         # input_size: 32 output_size = 32 
         # rf_in: 1, k=3, s = 1, p=1, j_in = 1, j_out = 1, rf_out = 3
-        self.conv_block_1_1 = self.conv_block(3, 32, padding=1) 
+        self.conv_block_1_1 = self.conv_block(3, 16, padding=1) 
 
         # input_size: 32 output_size = 32 
         # rf_in: 3, k=3, s = 1, p=1, j_in = 1, j_out = 1, rf_out = 5
-        self.conv_block_1_2 = self.conv_block(32, 32, padding=1) 
+        self.conv_block_1_2 = self.conv_block(16, 32, padding=1) 
 
         # Max Pool
         # input_size: 32 output_size = 16 
@@ -99,15 +99,15 @@ class Model_Net(nn.Module):
 
         # input_size: 16 output_size = 16 
         # rf_in: 6, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 10
-        self.conv_block_2_1 = self.conv_block(16,16, padding=1) 
+        self.conv_block_2_1 = self.conv_block(16,32, padding=1) 
 
         # input_size: 16 output_size = 16 
         # rf_in: 10, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 14
-        self.conv_block_2_2 = self.conv_block(16,16, padding=1) 
+        self.conv_block_2_2 = self.conv_block(32,32, padding=1) 
 
         # input_size: 16 output_size = 16 
         # rf_in: 14, k=3, s = 1, p=1, j_in = 2, j_out = 2, rf_out = 18
-        self.conv_block_2_3 = self.conv_block(16,16, padding=1) 
+        self.conv_block_2_3 = self.conv_block(32,32, padding=1) 
 
         # Max Pool
         # input_size: 16 output_size = 8 
@@ -115,19 +115,19 @@ class Model_Net(nn.Module):
         # 1 x 1 
         # input_size: 8 output_size = 8 
         # rf_in: 20, k=1, s = 1, p=0, j_in = 4, j_out = 4, rf_out = 20        
-        self.transition_block_2 = self.transition_block_with_max_pool(16,32) 
+        self.transition_block_2 = self.transition_block_with_max_pool(32,16) 
 
         # input_size: 8 output_size = 8 
         # rf_in: 20, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 28
-        self.conv_block_3_1 = self.conv_block(32,32, padding=1) 
+        self.conv_block_3_1 = self.conv_block(16,16, padding=1) 
 
         # input_size: 8 output_size = 8 
         # rf_in: 28, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 36
-        self.conv_block_3_2 = self.conv_block(32,32, padding=1)  
+        self.conv_block_3_2 = self.conv_block(16,32, padding=0)  
 
         # input_size: 8 output_size = 8 
         # rf_in: 36, k=3, s = 1, p=1, j_in = 4, j_out = 4, rf_out = 44
-        self.conv_block_3_3 = self.conv_block(32,32, padding=1) 
+        self.conv_block_3_3 = self.conv_block(32,32, padding=0) 
 
         # AAP
         # input_size: 8 output_size = 1 
