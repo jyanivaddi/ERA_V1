@@ -4,7 +4,7 @@
 * [Introduction](#Introduction)
 * [Dataset](#Dataset)
 * [Model](#Model)
-* [Normalization Methods](#Normalization)
+* [Feature Normalization](#Feature-Normalization)
 * [Results](#Results)
 * [Learnings](#Learnings)
 
