@@ -68,14 +68,21 @@ def get_incorrect_predictions(model, test_loader, device):
 def preview_images(train_loader, class_names, num_rows = 5, num_cols = 5):
     batch_data, batch_label = next(iter(train_loader))
     num_images_to_preview = num_rows*num_cols
+    inv_transforms = transforms.Compose([transforms.Normalize((0.,0.,0.,),
+                                            (1./0.247,1./0.244,1./0.262)),
+                                        transforms.Normalize((-0.491,-0.482,-0.447),
+                                                             (1.0,1.0,1.0))])
     for cnt in range(num_images_to_preview):
         plt.subplot(num_rows,num_cols,cnt+1)
         plt.tight_layout()
-        this_img = np.asarray(batch_data[cnt])
+        normalized_tensor_img = inv_transforms(batch_data[cnt].squeeze())
+        #this_img = np.asarray(batch_data[cnt])
+        this_img = np.asarray(normalized_tensor_img)
         plt.imshow(this_img.transpose((1,2,0)))
         plt.title(class_names[str(batch_label[cnt].item())])
         plt.xticks([])
         plt.yticks([])
+    plt.tight_layout()
     plt.show()
 
 
@@ -92,6 +99,7 @@ def show_incorrect_predictions(incorrect_predictions, class_names, num_rows = 5,
         #plt.subplot(num_rows,num_cols,cnt+1)
         this_img = np.asarray(orig_img)
         plt.imshow(this_img.transpose((1,2,0)))
+        #title_str = f"{class_names[str(target_label.item())]}/{class_names[str(predicted_label.item())]}"
         title_str = f"{class_names[str(target_label.item())]}/{class_names[str(predicted_label.item())]}"
         ax.set_title(title_str)
         cnt+=1
