@@ -146,11 +146,14 @@ Here, image wise normalization is computed i.e. all the features in the given la
 Here, the normalization is again performed on the feature axes but the feature is split into a fixed number of groups and the normalization is performed. when the number of groups is set to 1, group norm and layer norm produce identical results.
 
 The figure below shows an illustration of how the batch norm, layer norm, and the group norm are computed on a hypothetical layer.
-![feature_norm_comp](doc//norm_calculations.png)
+![feature_norm_comp](doc/norm_calculations.png)
 
 
 # Results
-The plots below show accuracy and loss computation over 19 epochs of training using all the three normalization methods described above. In our model, we used the group norm with 2 groups. 
+
+The table below shows the test accuracy values achieved using various configurations. Batchnorm has outperformed all the other normalization methods. Interestingly, group norm with 16 groups has reached the target accuracy faster than all the other group norm experiments, including layer norm. 
+
+![results_table](doc/results_table.png)
 
 <!--- ![bn_results](doc/accuracy_Batch_Norm.png) 
 
@@ -158,9 +161,11 @@ The plots below show accuracy and loss computation over 19 epochs of training us
 
 ![gn_results](doc/accuracy_group_norm.png) -->
 
+The plots below show accuracy and loss computation over 19 epochs of training using all the three normalization methods described above. In our model, we used the group norm with 2 groups. 
+
 ![all_results](doc/all_accuracies_together.png)
 
-As seen from the plots, using batch normalization gives the best test accuracy and lowest loss. The layer norm and group norm seem to give very similar results. In order to understand if the number of groups in the group norm affect the accuracy, we ran the model by settting the number of groups parameter to 4, 8, and 16. The results are shown below. It turns out for this model,the number of groups did not have much impact on the accuracy. Overall, the group norm (irrespective of the number of groups) and layer norm had similar accuracy. 
+As seen from the plots, using batch normalization gives the best test accuracy and lowest loss. The layer norm and group norm seem to give very similar results. In order to understand if the number of groups in the group norm affect the accuracy, we ran the model by settting the number of groups parameter to 4, 8, and 16. The results are shown below. As seen from the above results table, even though the model achieved 70% target accuracy faster when using 16 groups, the final accuracy scores across different groups was similar
 
 ![gn_results](doc/accuracy_group_norm_variations.png)
 
