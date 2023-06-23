@@ -6,6 +6,7 @@
 * [Model](#Model)
 * [Normalization Methods](#Normalization)
 * [Results](#Results)
+* [Learnings](#Learnings)
 
 # Introduction
 <p>In this module, we build a CNN model to perform image classificaion on the CIFAR-10 dataset. We also explore the effect of using batch normalization, layer normalization, and group normalization on the model performance. We demonstrate how the classifier can reach 70% accuracy in under 20 epochs using each normalization method while using less than 50000 model parameters. </p>
@@ -136,4 +137,48 @@ Three different normalization methods were implemented in the model and we walk 
 ![feature_normalization](doc/norm_methods.png)
 
 ## Batch Normalization
-Here, normalization is performed over all the batch features of a single channel. 
+Here, channel wise normalization is computed i.e., all the features in a batch are normalized over channels 1 to n. The number of parameters in batch normalization is 2 per channel. 
+
+## Layer Normalization
+Here, image wise normalization is computed i.e. all the features in the given layer are normalized. The number of outputs is two times the batch size.
+
+## Group Normalization
+Here, the normalization is again performed on the feature axes but the feature is split into a fixed number of groups and the normalization is performed. when the number of groups is set to 1, group norm and layer norm produce identical results.
+
+The figure below shows an illustration of how the batch norm, layer norm, and the group norm are computed on a hypothetical layer.
+![feature_norm_comp](doc//norm_calculations.png)
+
+
+# Results
+The plots below show accuracy and loss computation over 19 epochs of training using all the three normalization methods described above. In our model, we used the group norm with 2 groups. 
+
+<!--- ![bn_results](doc/accuracy_Batch_Norm.png) 
+
+![ln_results](doc/accuracy_layer_norm.png)
+
+![gn_results](doc/accuracy_group_norm.png) -->
+
+![all_results](doc/all_accuracies_together.png)
+
+As seen from the plots, using batch normalization gives the best test accuracy and lowest loss. The layer norm and group norm seem to give very similar results. In order to understand if the number of groups in the group norm affect the accuracy, we ran the model by settting the number of groups parameter to 4, 8, and 16. The results are shown below. It turns out for this model,the number of groups did not have much impact on the accuracy. Overall, the group norm (irrespective of the number of groups) and layer norm had similar accuracy. 
+
+![gn_results](doc/accuracy_group_norm_variations.png)
+
+
+
+Below figures shows some examples of incorrect predictions the model made in all the three normalization configurations. In each image, the first class indicates the ground truth and the second indicates the model prediction. 
+
+![bn_results](doc/incorrect_predictions_Batch_norm.png) 
+
+![ln_results](doc/incorrect_predictions_layer_norm.png)
+
+![gn_results](doc/incorrect_predictions_group_norm.png) 
+
+
+Based on the plots, clearly using batch norm gives the best accuracy than the other two methods. 
+
+# Learnings
+Some takeaways from this exercise:
+* We learnt how to successfully train an image classifier based on the CIFAR-10 dataset.
+* We understood the difference between batch norm, layer norm, and group norm. 
+* Based on our experiment with RandomResizedCrop transformation, it became apparent that adding complex augmentations significantly increases the training time since the model tries not to overfit the data. 
