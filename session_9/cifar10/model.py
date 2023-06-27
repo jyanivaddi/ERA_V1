@@ -151,11 +151,11 @@ class Model_Net(nn.Module):
 
         self.block_1_in_channels = base_channels
         self.block_1_out_channels = 32
-        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=1)
+        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=0)
         
         self.block_2_in_channels = 32
         self.block_2_out_channels = 32
-        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last = 2, use_pool=False, padding=1)
+        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last = 2, use_pool=False, padding=0)
 
         self.block_3_in_channels = 32
         self.block_3_out_channels = 64
