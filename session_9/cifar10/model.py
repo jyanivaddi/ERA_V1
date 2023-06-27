@@ -54,11 +54,11 @@ def model_test(model, device, test_loader, test_acc, test_losses):
 
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, use_pool=False):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, use_pool=False, padding=1):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
-        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size)
-        self.conv2 = self.single_convolution(out_channels, out_channels*2,kernel_size=kernel_size)
+        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size, padding=padding)
+        self.conv2 = self.single_convolution(out_channels, out_channels*2,kernel_size=kernel_size, padding=padding)
         if use_pool:
             self.conv3 = self.transition_block_with_max_pool(out_channels*2, out_channels)
         else:
@@ -123,15 +123,15 @@ class Model_Net(nn.Module):
 
         self.block_1_in_channels = base_channels
         self.block_1_out_channels = 32
-        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True)
+        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True, padding=1)
         
         self.block_2_in_channels = 32
         self.block_2_out_channels = 32
-        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True)
+        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True, padding=1)
 
         self.block_3_in_channels = 32
         self.block_3_out_channels = 64
-        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,drop_out_probability=self.drop_out_probability, use_pool=False)
+        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,drop_out_probability=self.drop_out_probability, use_pool=False, padding=0)
 
         self.aap = nn.AdaptiveAvgPool2d(1)
         self.final = nn.Conv2d(self.block_3_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
