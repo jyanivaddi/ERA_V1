@@ -122,10 +122,10 @@ class Model_Net(nn.Module):
         self.num_classes = num_classes
 
         self.block_1_in_channels = base_channels
-        self.block_1_out_channels = 64
+        self.block_1_out_channels = 32
         self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True)
         
-        self.block_2_in_channels = 64
+        self.block_2_in_channels = 32
         self.block_2_out_channels = 32
         self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_pool=True)
 
