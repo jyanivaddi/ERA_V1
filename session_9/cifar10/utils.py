@@ -8,20 +8,6 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 
-def load_cifar10_data(train_transforms, test_transforms):
-    train_data = datasets.CIFAR10('../data', train=True, download=True, transform=train_transforms)
-    test_data = datasets.CIFAR10('../data', train=False, download=True, transform=test_transforms)
-    class_names = {"0": "airplane",
-               "1": "automobile",
-               "2": "bird",
-               "3": "cat",
-               "4": "deer",
-               "5": "dog",
-               "6": "frog",
-               "7": "horse",
-               "8": "ship",
-               "9": "truck"}
-    return train_data, test_data, class_names
 
 
 def get_incorrect_predictions(model, test_loader, device):
