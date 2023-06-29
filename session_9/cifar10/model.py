@@ -64,10 +64,12 @@ class DepthWiseSeparable(nn.Module):
     padding: padding to use for the convolutions (default 1 i.e, output feature has same (W,H) as input map)
     """
 
-    def __init__(self, in_channels, out_channels, kernel_size, drop_out_probability=0.05, padding=1):
+    def __init__(self, in_channels, out_channels, kernel_size, padding = 1, padding_mode = 'reflect', drop_out_probability=0.05):
         super(DepthWiseSeparable, self).__init__()
         self.drop_out_probability = drop_out_probability
-        self.g1 = self.grouped_convolution(in_channels, kernel_size, padding) 
+        self.padding = padding
+        self.padding_mode = padding_mode
+        self.g1 = self.grouped_convolution(in_channels, kernel_size) 
         self.i1 = self.one_one_convolution(in_channels, out_channels)
         return
 
@@ -76,7 +78,7 @@ class DepthWiseSeparable(nn.Module):
         x = self.i1(x)
         return x
 
-    def grouped_convolution(self,in_channels,kernel_size, padding):
+    def grouped_convolution(self,in_channels,kernel_size):
         """ 
         Define 3 x 3 Convolutions. the input is split into individual features of one channel each
          and each channel is separately convolved with the kernel and stacked together
@@ -85,7 +87,8 @@ class DepthWiseSeparable(nn.Module):
             nn.Conv2d(in_channels=in_channels, 
                     out_channels=in_channels, 
                     kernel_size=(kernel_size, kernel_size), 
-                    padding=padding, 
+                    padding=self.padding, 
+                    padding_mode=self.padding_mode,
                     bias=False,
                     groups=in_channels),
             nn.BatchNorm2d(in_channels),
@@ -119,24 +122,27 @@ class Block(nn.Module):
     use_depth_wise_conv:Boolean vale specifying whether to use depthwise separable convolution for each layer (default: [False, False]))
 
     """
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, dilation_val_last=1, use_depth_wise_conv=[False, False]):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, padding_mode = 'reflect', dilation_val_last=1, use_depth_wise_conv=[False, False]):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
+        self.padding_mode = padding_mode
+        self.padding = padding
 
         # Conv layer 1
         if use_depth_wise_conv[0]:
-            self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
+            self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding, padding_mode = self.padding_mode)
         else:
-            self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding=padding, dilation=1)
+            self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size)
 
         # Conv layer 2
         if use_depth_wise_conv[1]:
-            self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, drop_out_probability=self.drop_out_probability, padding=padding)
+            self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, drop_out_probability=self.drop_out_probability, padding=padding, padding_mode=self.padding_mode)
         else:
-            self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
+            self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size)
 
         # Dilated Conv
-        self.dilated_conv = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
+        dilated_conv_padding='same'
+        self.dilated_conv = self.dilated_convolution(out_channels, out_channels, kernel_size, dilation_val_last, dilated_conv_padding)
 
     def __call__(self, x):
         x = self.conv1(x) 
@@ -146,7 +152,7 @@ class Block(nn.Module):
         return x
     
 
-    def dilated_convolution(self, in_channels, out_channels, kernel_size, padding=1, dilation=1):
+    def dilated_convolution(self, in_channels, out_channels, kernel_size, dilation, dilated_conv_padding):
         """
         Define dilated convolution block
         """
@@ -155,7 +161,8 @@ class Block(nn.Module):
             nn.Conv2d(in_channels=in_channels, 
                       out_channels=out_channels, 
                       kernel_size=(kernel_size, kernel_size), 
-                      padding=padding, 
+                      padding=dilated_conv_padding, 
+                      padding_mode=self.padding_mode,
                       dilation=dilation, 
                       bias=False),
             nn.BatchNorm2d(out_channels),
@@ -164,7 +171,7 @@ class Block(nn.Module):
             )
         return dilated_conv_block
 
-    def single_convolution(self,in_channels, out_channels,kernel_size, padding=1, dilation=1):
+    def single_convolution(self,in_channels, out_channels,kernel_size):
         """
         Define normal convolution block
         """
@@ -173,8 +180,8 @@ class Block(nn.Module):
             nn.Conv2d(in_channels=in_channels, 
                     out_channels=out_channels, 
                     kernel_size=(kernel_size, kernel_size), 
-                    padding=padding, 
-                    dilation=dilation,
+                    padding=self.padding, 
+                    padding_mode=self.padding_mode,
                     bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
@@ -192,11 +199,13 @@ class Model_Net(nn.Module):
     num_classes: number of output classes in the input data (for cifar-10, it is 10)
     drop_out_probability: probability to use for dropout
     """
-    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05):
+    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05, padding_mode = 'reflect', use_depth_wise_conv=[False, True]):
         super(Model_Net,self).__init__()
         self.drop_out_probability = drop_out_probability
         self.num_classes = num_classes
-        use_depth_wise_conv = [False, True]
+        self.use_depth_wise_conv = use_depth_wise_conv
+        self.padding_mode = padding_mode
+
 
         # Block 1
         # Number of input channels: 3
@@ -210,7 +219,9 @@ class Model_Net(nn.Module):
         dilation_val_block_1 = 2
         self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,
                             drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last=dilation_val_block_1, padding=1, use_depth_wise_conv = use_depth_wise_conv)
+                            dilation_val_last=dilation_val_block_1, 
+                            padding=1, padding_mode=self.padding_mode,
+                            use_depth_wise_conv = self.use_depth_wise_conv)
         
         # Block 2
         # Number of input channels: 64
@@ -223,7 +234,8 @@ class Model_Net(nn.Module):
         self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last = dilation_val_block_2, 
-                            padding=1, use_depth_wise_conv = use_depth_wise_conv)
+                            padding=1, padding_mode=self.padding_mode,
+                            use_depth_wise_conv = self.use_depth_wise_conv)
 
         # Block 3
         # Number of input channels: 64
@@ -236,7 +248,8 @@ class Model_Net(nn.Module):
         self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last=dilation_val_block_3, 
-                            padding=0, use_depth_wise_conv=use_depth_wise_conv)
+                            padding=0, padding_mode=self.padding_mode,
+                            use_depth_wise_conv=self.use_depth_wise_conv)
 
         # Block 4
         # Number of input channels: 32
@@ -249,7 +262,8 @@ class Model_Net(nn.Module):
         self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last=dilation_val_block_4, 
-                            padding=0, use_depth_wise_conv=use_depth_wise_conv)
+                            padding=0, padding_mode=self.padding_mode,
+                            use_depth_wise_conv=self.use_depth_wise_conv)
 
         # Adaptive Average Pooling
         # Number of input channels: 32
