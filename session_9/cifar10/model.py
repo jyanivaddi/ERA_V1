@@ -199,7 +199,7 @@ class Model_Net(nn.Module):
 
         self.block_4_in_channels = self.block_3_out_channels
         self.block_4_out_channels = 32
-        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=8, use_pool=False, padding=0)
+        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=16, use_pool=False, padding=0)
 
         self.aap = nn.AdaptiveAvgPool2d(1)
         self.final = nn.Conv2d(self.block_4_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
