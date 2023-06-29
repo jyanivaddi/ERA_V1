@@ -186,23 +186,29 @@ class Model_Net(nn.Module):
 
         self.block_1_in_channels = base_channels
         self.block_1_out_channels = 64
-        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=0)
+        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=1)
         
         self.block_2_in_channels = self.block_1_out_channels
         self.block_2_out_channels = 32
-        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last = 2, use_pool=False, padding=0)
+        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last = 4, use_pool=False, padding=1)
 
         self.block_3_in_channels = self.block_2_out_channels
         self.block_3_out_channels = 32
-        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=0)
+        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=8, use_pool=False, padding=0)
+
+
+        self.block_4_in_channels = self.block_3_out_channels
+        self.block_4_out_channels = 32
+        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=8, use_pool=False, padding=0)
 
         self.aap = nn.AdaptiveAvgPool2d(1)
-        self.final = nn.Conv2d(self.block_3_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
+        self.final = nn.Conv2d(self.block_4_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
     
     def forward(self, x):
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
+        x = self.block4(x)
         x = self.aap(x)
         x = self.final(x)
         x = x.view(-1,self.num_classes)
