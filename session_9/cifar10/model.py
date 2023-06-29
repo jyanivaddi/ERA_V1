@@ -87,13 +87,17 @@ class DepthWiseSeparable(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, dilation_val_last=1):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, dilation_val_last=1, use_depth_wise_conv=[False, False]):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
-        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding=padding, dilation=1)
-        #self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
-        #self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
-        self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, drop_out_probability=self.drop_out_probability, padding=padding)
+        if use_depth_wise_conv[0]:
+            self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
+        else:
+            self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding=padding, dilation=1)
+        if use_depth_wise_conv[1]:
+            self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, drop_out_probability=self.drop_out_probability, padding=padding)
+        else:
+            self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
         self.dilated_conv = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
 
     def __call__(self, x):
@@ -141,13 +145,14 @@ class Model_Net(nn.Module):
         super(Model_Net,self).__init__()
         self.drop_out_probability = drop_out
         self.num_classes = num_classes
+        use_depth_wise_conv = [False, True]
 
         self.block_1_in_channels = base_channels
         self.block_1_out_channels = 64
         dilation_val_block_1 = 2
         self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,
                             drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last=dilation_val_block_1, padding=1)
+                            dilation_val_last=dilation_val_block_1, padding=1, use_depth_wise_conv = use_depth_wise_conv)
         
         self.block_2_in_channels = self.block_1_out_channels
         self.block_2_out_channels = 64
@@ -155,7 +160,7 @@ class Model_Net(nn.Module):
         self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last = dilation_val_block_2, 
-                            padding=1)
+                            padding=1, use_depth_wise_conv = use_depth_wise_conv)
 
         self.block_3_in_channels = self.block_2_out_channels
         self.block_3_out_channels = 32
@@ -163,7 +168,7 @@ class Model_Net(nn.Module):
         self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last=dilation_val_block_3, 
-                            padding=0)
+                            padding=0, use_depth_wise_conv=use_depth_wise_conv)
 
 
         self.block_4_in_channels = self.block_3_out_channels
@@ -172,7 +177,7 @@ class Model_Net(nn.Module):
         self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,
                             drop_out_probability=self.drop_out_probability, 
                             dilation_val_last=dilation_val_block_4, 
-                            padding=0)
+                            padding=0, use_depth_wise_conv=use_depth_wise_conv)
 
         self.aap = nn.AdaptiveAvgPool2d(1)
         self.final = nn.Conv2d(self.block_4_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
