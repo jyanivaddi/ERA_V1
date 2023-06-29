@@ -87,33 +87,20 @@ class DepthWiseSeparable(nn.Module):
 
 
 class Block(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, use_pool=False, padding=1, dilation_val_last=1, use_dilated_kernel_on_last = False):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, dilation_val_last=1):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
         self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size, padding=padding, dilation=1)
         #self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
-        self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
-        #self.conv2 = DepthWiseSeparable(out_channels, out_channels*2,kernel_size, padding)
-        self.use_dilated_kernel_on_last = use_dilated_kernel_on_last
-        if use_dilated_kernel_on_last:
-            self.conv3 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
-            self.dilated = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
-        else:
-            if use_pool:
-                self.conv3 = self.transition_block_with_max_pool(out_channels*2, out_channels)
-            else:
-                self.conv3 = self.transition_block_wo_max_pool(out_channels*2, out_channels)
-
+        #self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
+        self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, padding)
+        self.dilated_conv = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
 
     def __call__(self, x):
-        x = self.conv1(x) #RF 3
-        x = self.conv2(x) # RF 5
-        if self.use_dilated_kernel_on_last:
-            #x = self.conv3(x)
-            x1 = self.dilated(x) # RF 5
-            x = x + x1
-        else:
-            x = self.conv3(x)
+        x = self.conv1(x) 
+        x = self.conv2(x) 
+        x1 = self.dilated_conv(x) 
+        x = x + x1
         return x
     
 
@@ -147,35 +134,6 @@ class Block(nn.Module):
         )
         return conv_block
     
-    def transition_block_with_max_pool(self, in_channels, out_channels):
-        transition_block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, 
-                        out_channels= out_channels,
-                        kernel_size = (1,1),
-                        padding=0,
-                        bias=False),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(),
-            nn.Dropout(self.drop_out_probability),
-            nn.MaxPool2d(2,2),
-        )
-        return transition_block
-
-    def transition_block_wo_max_pool(self, in_channels, out_channels):
-        transition_block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, 
-                        out_channels= out_channels,
-                        kernel_size = (1,1),
-                        padding=0,
-                        bias=False),
-        )
-        return transition_block
-    
-
-# Transition Block 1
-# Max Pool
-# input_size: 24 output_size = 12 
-# rf_in: 5, s = 2, j_in = 1, j_out = 2, rf_out = 6
 
 class Model_Net(nn.Module):
 
@@ -186,20 +144,35 @@ class Model_Net(nn.Module):
 
         self.block_1_in_channels = base_channels
         self.block_1_out_channels = 64
-        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=2, use_pool=False, padding=1)
+        dilation_val_block_1 = 2
+        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,
+                            drop_out_probability=self.drop_out_probability, 
+                            dilation_val_last=dilation_val_block_1, padding=1)
         
         self.block_2_in_channels = self.block_1_out_channels
-        self.block_2_out_channels = 32
-        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last = 4, use_pool=False, padding=1)
+        self.block_2_out_channels = 64
+        dilation_val_block_2 = 4
+        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,
+                            drop_out_probability=self.drop_out_probability, 
+                            dilation_val_last = dilation_val_block_2, 
+                            padding=1)
 
         self.block_3_in_channels = self.block_2_out_channels
         self.block_3_out_channels = 32
-        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=8, use_pool=False, padding=0)
+        dilation_val_block_3 = 8
+        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,
+                            drop_out_probability=self.drop_out_probability, 
+                            dilation_val_last=dilation_val_block_3, 
+                            padding=0)
 
 
         self.block_4_in_channels = self.block_3_out_channels
         self.block_4_out_channels = 32
-        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,drop_out_probability=self.drop_out_probability, use_dilated_kernel_on_last = True, dilation_val_last=16, use_pool=False, padding=0)
+        dilation_val_block_4 = 16
+        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,
+                            drop_out_probability=self.drop_out_probability, 
+                            dilation_val_last=dilation_val_block_4, 
+                            padding=0)
 
         self.aap = nn.AdaptiveAvgPool2d(1)
         self.final = nn.Conv2d(self.block_4_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
