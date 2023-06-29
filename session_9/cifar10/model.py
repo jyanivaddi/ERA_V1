@@ -55,7 +55,7 @@ def model_test(model, device, test_loader, test_acc, test_losses):
 
 class DepthWiseSeparable(nn.Module):
 
-    def __init__(self, in_channels, out_channels, kernel_size=3, drop_out_probability=0.05, padding=1):
+    def __init__(self, in_channels, out_channels, kernel_size, drop_out_probability=0.05, padding=1):
         super(DepthWiseSeparable, self).__init__()
         self.drop_out_probability = drop_out_probability
         self.g1 = self.grouped_convolution(in_channels, kernel_size, padding) 
@@ -90,10 +90,10 @@ class Block(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1, dilation_val_last=1):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
-        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size, padding=padding, dilation=1)
+        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding=padding, dilation=1)
         #self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
         #self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
-        self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, padding)
+        self.conv2 = DepthWiseSeparable(out_channels, out_channels,kernel_size, drop_out_probability=self.drop_out_probability, padding=padding)
         self.dilated_conv = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
 
     def __call__(self, x):
