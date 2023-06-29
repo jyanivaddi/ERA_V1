@@ -90,13 +90,13 @@ class Block(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, use_pool=False, padding=1, dilation_val_last=1, use_dilated_kernel_on_last = False):
         super(Block, self).__init__()
         self.drop_out_probability = drop_out_probability
-        #self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size, padding=padding, dilation=1)
-        self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
-        #self.conv2 = self.single_convolution(out_channels, out_channels*2,kernel_size=kernel_size, padding=padding, dilation=1)
-        self.conv2 = DepthWiseSeparable(out_channels, out_channels*2,kernel_size, padding)
+        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size=kernel_size, padding=padding, dilation=1)
+        #self.conv1 = DepthWiseSeparable(in_channels, out_channels,kernel_size, padding)
+        self.conv2 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
+        #self.conv2 = DepthWiseSeparable(out_channels, out_channels*2,kernel_size, padding)
         self.use_dilated_kernel_on_last = use_dilated_kernel_on_last
         if use_dilated_kernel_on_last:
-            self.conv3 = self.single_convolution(out_channels*2, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
+            self.conv3 = self.single_convolution(out_channels, out_channels,kernel_size=kernel_size, padding=padding, dilation=1)
             self.dilated = self.dilated_convolution(out_channels, out_channels, kernel_size=kernel_size, padding='same', dilation=dilation_val_last)
         else:
             if use_pool:
@@ -106,11 +106,11 @@ class Block(nn.Module):
 
 
     def __call__(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
+        x = self.conv1(x) #RF 3
+        x = self.conv2(x) # RF 5
         if self.use_dilated_kernel_on_last:
-            x = self.conv3(x)
-            x1 = self.dilated(x)
+            #x = self.conv3(x)
+            x1 = self.dilated(x) # RF 5
             x = x + x1
         else:
             x = self.conv3(x)
