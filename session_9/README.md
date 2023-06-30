@@ -38,7 +38,7 @@ The below image demonstrates how the image transforms look on a sample image
 Our model contains four convolution blocks, each of which has three convolution layers. The output from the fourth block is passed through an adaptive average pooling layer, followed by a 1x1 convolution to reduce the number of output channels to 10. Finally log softmax function is used to calculate the class probabilities.
 
 ```B1-> B2 -> B3 -> B4 -> AAP -> C5 -> O```  is the model structure 
-where ```B``` represents a convolution block of three layers, ```C``` represents a 1 x 1 convolution block, ```AAP``` represents an Adaptive Average Pooling block, and ```O``` indicates the log softmax output. The model contains a total of 171840 parameters. The model achieved a max. receptive field of 55 for the cifar-10 input data of size 3 x 32 x 32. 
+where ```B``` represents a convolution block of three layers, ```C``` represents a 1 x 1 convolution block, ```AAP``` represents an Adaptive Average Pooling block, and ```O``` indicates the log softmax output. The model contains a total of 171840 parameters. The model achieved a max. receptive field of 77 for the cifar-10 input data of size 3 x 32 x 32. 
 
 Each block ```B``` contains the following layers:
 
