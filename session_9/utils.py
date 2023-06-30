@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 
 
-
 def get_incorrect_predictions(model, test_loader, device):
     model.eval()
     incorrect_predictions = []
@@ -69,7 +68,6 @@ def show_incorrect_predictions(incorrect_predictions, class_names, num_rows = 5,
             break
     #plt.tight_layout()
     plt.show()
-
 
 def plot_statistics(train_losses, train_acc, test_losses, test_acc, target_test_acc = 99):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
