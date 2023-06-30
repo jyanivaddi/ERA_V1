@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -73,6 +74,33 @@ class FeatureVisualization:
         # extract feature maps
         self.compute_features()
         self.plot_feature_maps()
+
+
+def createConfusionMatrix(loader):
+    y_pred = [] # save predction
+    y_true = [] # save ground truth
+
+    # iterate over data
+    for inputs, labels in loader:
+        output = net(inputs)  # Feed Network
+
+        output = (torch.max(torch.exp(output), 1)[1]).data.cpu().numpy()
+        y_pred.extend(output)  # save prediction
+
+        labels = labels.data.cpu().numpy()
+        y_true.extend(labels)  # save ground truth
+
+    # constant for classes
+    classes = ('T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
+               'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle Boot')
+
+    # Build confusion matrix
+    cf_matrix = confusion_matrix(y_true, y_pred)
+    df_cm = pd.DataFrame(cf_matrix / np.sum(cf_matrix, axis=1)[:, None], index=[i for i in classes],
+                         columns=[i for i in classes])
+    # Create Heatmap
+    plt.figure(figsize=(12, 7))    
+    return sn.heatmap(df_cm, annot=True).get_figure()
 
 
 def build_confusion_matrix(model, data_loader):
