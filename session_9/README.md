@@ -53,15 +53,17 @@ Each block ```B``` contains the following layers:
 The receptive field computations for this model are shown below:
 ![model_arch](doc/RF_calculations.png)
 
-
+<!--## Dilated Convolution
+In dilated convolution, the kernel size is effectively increased by using alternate 
+![dilated](doc/dilation.gif)
+![depthwise](doc/Depthwise-separable-convolution-block.png)
 ## Regularization
 A uniform drop out value of 5% was used in all the convolution blocks except the final 1 x 1 convolution to prevent overfitting to the train set. 
 
 Feature normalization is performed using batch normalization at each convolution layer
 
 Additionally, data transformations mentioned in the Dataset section were implemtented to augment the dataset. 
-
-
+-->
 
 ## Model Summary
 Here is a summary of the model we used to perform classification. 
@@ -189,7 +191,7 @@ Epoch	     Train Loss	       Val Loss      Train Accuracy    Val Accuracy
 ```
 -->
 ```
-Epoch	     Train Loss	     Val Loss     Train Accuracy    Val Accuracy
+Epoch	     Train Loss     Val Loss     Train Accuracy %    Val Accuracy %
 ========================================================================
 1		1.54		1.13		42.64		58.74
 
