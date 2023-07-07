@@ -46,14 +46,13 @@ class ResidualBlock(nn.Module):
   
 
 class Layer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding="same", padding_mode = 'reflect'):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding="same"):
         super(Layer, self).__init__()
         self.drop_out_probability = drop_out_probability
-        self.padding_mode = padding_mode
         self.padding = padding
 
-        self.conv1 = self.pooled_convolution(in_channels, out_channels,kernel_size, padding=1, padding_mode = self.padding_mode)
-        self.res_block = ResidualBlock(in_channels, out_channels, kernel_size, drop_out_probability=self.drop_out_probability, padding=self.padding)
+        self.conv1 = self.pooled_convolution(in_channels, out_channels,kernel_size)
+        self.res_block = ResidualBlock(out_channels, out_channels, kernel_size, drop_out_probability=self.drop_out_probability, padding=self.padding)
 
     def pooled_convolution(self, in_channels, out_channels, kernel_size):
         # Define Conv Block
@@ -62,7 +61,7 @@ class Layer(nn.Module):
                     out_channels=out_channels, 
                     kernel_size=(kernel_size, kernel_size), 
                     padding=1, 
-                    padding_mode=self.padding_mode,
+                    padding_mode='reflect',
                     bias=False),
             nn.MaxPool2d(2),
             nn.BatchNorm2d(out_channels),
@@ -86,88 +85,63 @@ class Model_Net(nn.Module):
     num_classes: number of output classes in the input data (for cifar-10, it is 10)
     drop_out_probability: probability to use for dropout
     """
-    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05, padding_mode = 'reflect', use_depth_wise_conv=[False, True]):
+    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05):
         super(Model_Net,self).__init__()
+        self.base_channels = base_channels
         self.drop_out_probability = drop_out_probability
         self.num_classes = num_classes
-        self.use_depth_wise_conv = use_depth_wise_conv
-        self.padding_mode = padding_mode
 
+        # prep layer - 64 outputs
+        prep_layer_out_channels = 64
+        self.prep_layer = nn.Sequential(
+            nn.Conv2d(in_channels=self.base_channels, 
+                      out_channels=prep_layer_out_channels, 
+                      kernel_size=(3, 3), 
+                      padding=1, 
+                      padding_mode='reflect', 
+                      bias=False), 
+            nn.BatchNorm2d(prep_layer_out_channels), 
+            nn.ReLU()
+        )
 
-        # Block 1
-        # Number of input channels: 3
-        # Number of output channels: 64
-        # Dilation value: 2
-        # Convolution layer types: Regular -> Depthwise Separable -> Dilated
-        # Input RF: 1
-        # Output RF: 
-        self.block_1_in_channels = base_channels
-        self.block_1_out_channels = 64
-        dilation_val_block_1 = 2
-        self.block1 = Block(self.block_1_in_channels,self.block_1_out_channels,
-                            drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last=dilation_val_block_1, 
-                            padding=1, padding_mode=self.padding_mode,
-                            use_depth_wise_conv = self.use_depth_wise_conv)
-        
-        # Block 2
-        # Number of input channels: 64
-        # Number of output channels: 64
-        # Dilation value: 4
-        # Convolution layer types: Regular -> Depthwise Separable -> Dilated
-        self.block_2_in_channels = self.block_1_out_channels
-        self.block_2_out_channels = 64
-        dilation_val_block_2 = 4
-        self.block2 = Block(self.block_2_in_channels,self.block_2_out_channels,
-                            drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last = dilation_val_block_2, 
-                            padding=1, padding_mode=self.padding_mode,
-                            use_depth_wise_conv = self.use_depth_wise_conv)
+        # Layer 1 - 128 outputs
+        layer_1_in_channels = prep_layer_out_channels
+        layer_1_out_channels = 128
+        self.layer_1 = Layer(layer_1_in_channels, layer_1_out_channels, kernel_size=3, padding=1)
 
-        # Block 3
-        # Number of input channels: 64
-        # Number of output channels: 32
-        # Dilation value: 8
-        # Convolution layer types: Regular -> Depthwise Separable -> Dilated
-        self.block_3_in_channels = self.block_2_out_channels
-        self.block_3_out_channels = 32
-        dilation_val_block_3 = 8
-        self.block3 = Block(self.block_3_in_channels,self.block_3_out_channels,
-                            drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last=dilation_val_block_3, 
-                            padding=0, padding_mode=self.padding_mode,
-                            use_depth_wise_conv=self.use_depth_wise_conv)
+        # Layer 2 - 256 outputs
+        layer_2_in_channels = layer_1_out_channels
+        layer_2_out_channels = 256
+        self.layer_2 = nn.Sequential(
+            nn.Conv2d(in_channels=layer_2_in_channels,
+                      out_channels=layer_2_out_channels, 
+                      kernel_size=(3, 3), 
+                      padding=1, 
+                      padding_mode='reflect', 
+                      bias=False), 
+            nn.MaxPool2d(2), 
+            nn.BatchNorm2d(layer_2_out_channels), 
+            nn.ReLU()
+        )
 
-        # Block 4
-        # Number of input channels: 32
-        # Number of output channels: 32
-        # Dilation value: 16
-        # Convolution layer types: Regular -> Depthwise Separable -> Dilated
-        self.block_4_in_channels = self.block_3_out_channels
-        self.block_4_out_channels = 32
-        dilation_val_block_4 = 16
-        self.block4 = Block(self.block_4_in_channels,self.block_4_out_channels,
-                            drop_out_probability=self.drop_out_probability, 
-                            dilation_val_last=dilation_val_block_4, 
-                            padding=0, padding_mode=self.padding_mode,
-                            use_depth_wise_conv=self.use_depth_wise_conv)
+        # Layer 3 - 512 outputs
+        layer_3_in_channels = layer_2_out_channels
+        layer_3_out_channels = 512
+        self.layer_3 = Layer(layer_3_in_channels, layer_3_out_channels, kernel_size=3, padding=1)
 
-        # Adaptive Average Pooling
-        # Number of input channels: 32
-        # Number of output channels: 32
-        self.aap = nn.AdaptiveAvgPool2d(1)
+        # Pool Layer - kernel size = 4
+        self.pool = nn.MaxPool2d(4) 
 
-        # 1x1 convolution
-        # Number of input channels: 32
-        # Number of output channels: 10
-        self.final = nn.Conv2d(self.block_4_out_channels,num_classes, kernel_size=(1,1),bias=False, padding=0) 
+        # FC layer - outputs = 10
+        self.fc = nn.Linear(layer_3_out_channels, self.num_classes, bias=False)
+
     
     def forward(self, x):
-        x = self.block1(x)
-        x = self.block2(x)
-        x = self.block3(x)
-        x = self.block4(x)
-        x = self.aap(x)
-        x = self.final(x)
+        x = self.prep_layer(x)
+        x = self.layer_1(x)
+        x = self.layer_2(x)
+        x = self.layer_3(x)
+        x = self.pool(x)
+        x = self.fc(x.squeeze())
         x = x.view(-1,self.num_classes)
         return F.log_softmax(x)
