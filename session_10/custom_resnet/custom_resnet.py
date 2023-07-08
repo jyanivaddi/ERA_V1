@@ -45,7 +45,7 @@ class ResidualBlock(nn.Module):
                     bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
-            nn.Dropout(drop_out_probability)
+            #nn.Dropout(drop_out_probability)
         )
         return conv_block
 
