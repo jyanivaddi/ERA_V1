@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
@@ -5,7 +6,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets, transforms
 from tqdm import tqdm
-import matplotlib.pyplot as plt
+from prettytable import PrettyTable
+
 
 
 
@@ -23,6 +25,15 @@ def get_incorrect_predictions(model, test_loader, device):
                         [d.cpu(), t.cpu(), p.cpu(),o[p.item()].cpu()]
                     )
     return incorrect_predictions
+
+def print_train_log(train_acc, test_acc, train_loss, test_loss):
+    t = PrettyTable()
+    t.field_names=["Epoch", "Train loss", "Val loss", "Train Accuracy", "Val Accuracy"]
+    for cnt in range(len(train_acc)):
+        t.add_row([cnt+1,train_loss[cnt], test_loss[cnt], train_acc[cnt], test_acc[cnt]])
+        print(f"{cnt+1}\t\t{train_loss[cnt]:0.2f}\t\t{test_loss[cnt]:0.2f}\t\t{train_acc[cnt]:0.2f}\t\t{test_acc[cnt]:0.2f}\n")
+    print(t)
+
 
 def preview_images(train_loader, class_names, num_rows = 5, num_cols = 5):
     batch_data, batch_label = next(iter(train_loader))

@@ -2,10 +2,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchsummary import summary
+import torchinfo
 from tqdm import tqdm
 
 def model_summary(model, input_size):
-    summary(model, input_size = input_size)
+    torchinfo.summary(model, 
+                      input_size = input_size, 
+                      batch_dim=0, 
+                      col_names=("kernel_size",
+                                 "input_size",
+                                 "output_size",
+                                 "num_params",
+                                 "mult_adds"),
+                       verbose=1,) 
+
 
 
 class ResidualBlock(nn.Module):
@@ -76,7 +86,7 @@ class Layer(nn.Module):
         return x
     
 
-class Model_Net(nn.Module):
+class CustomResnet(nn.Module):
     """
     Model definition
     parameters:
@@ -86,7 +96,7 @@ class Model_Net(nn.Module):
     drop_out_probability: probability to use for dropout
     """
     def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05):
-        super(Model_Net,self).__init__()
+        super(CustomResnet,self).__init__()
         self.base_channels = base_channels
         self.drop_out_probability = drop_out_probability
         self.num_classes = num_classes
