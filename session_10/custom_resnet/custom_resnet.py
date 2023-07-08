@@ -22,16 +22,16 @@ class ResidualBlock(nn.Module):
     """
 
     """
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding=1):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, padding=1):
         super(ResidualBlock, self).__init__()
 
         # Conv layer 1
-        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, drop_out_probability, padding)
+        self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding)
 
         # Conv layer 2
-        self.conv2 = self.single_convolution(in_channels, out_channels, kernel_size, drop_out_probability, padding)
+        self.conv2 = self.single_convolution(in_channels, out_channels, kernel_size, padding)
 
-    def single_convolution(self,in_channels, out_channels,kernel_size, drop_out_probability, padding):
+    def single_convolution(self,in_channels, out_channels,kernel_size, padding):
         """
         Define a convolution layer with batch normalization and drop out
         """
@@ -45,7 +45,6 @@ class ResidualBlock(nn.Module):
                     bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
-            #nn.Dropout(drop_out_probability)
         )
         return conv_block
 
@@ -56,13 +55,12 @@ class ResidualBlock(nn.Module):
   
 
 class Layer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, drop_out_probability=0.05, padding="same"):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, padding="same"):
         super(Layer, self).__init__()
-        self.drop_out_probability = drop_out_probability
         self.padding = padding
 
         self.conv1 = self.pooled_convolution(in_channels, out_channels,kernel_size)
-        self.res_block = ResidualBlock(out_channels, out_channels, kernel_size, drop_out_probability=self.drop_out_probability, padding=self.padding)
+        self.res_block = ResidualBlock(out_channels, out_channels, kernel_size, padding=self.padding)
 
     def pooled_convolution(self, in_channels, out_channels, kernel_size):
         # Define Conv Block
@@ -95,10 +93,9 @@ class CustomResnet(nn.Module):
     num_classes: number of output classes in the input data (for cifar-10, it is 10)
     drop_out_probability: probability to use for dropout
     """
-    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability = 0.05):
+    def __init__(self, base_channels = 3, num_classes = 10):
         super(CustomResnet,self).__init__()
         self.base_channels = base_channels
-        self.drop_out_probability = drop_out_probability
         self.num_classes = num_classes
 
         # prep layer - 64 outputs

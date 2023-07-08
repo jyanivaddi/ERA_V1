@@ -15,14 +15,8 @@ class Optimization:
         self.scheduler = None
         self.define_optimizer()
     
-    def __call__(self):
-        self.define_optimizer()
-        self.define_scheduler()
-        self.define_one_cycle_lr_scheduler()
-
     def define_optimizer(self):
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.03, weight_decay=1e-4)
-
 
     def define_scheduler(self, max_lr):
         self.scheduler = OneCycleLR(
