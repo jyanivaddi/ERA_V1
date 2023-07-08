@@ -9,8 +9,6 @@ from tqdm import tqdm
 from prettytable import PrettyTable
 
 
-
-
 def get_incorrect_predictions(model, test_loader, device):
     model.eval()
     incorrect_predictions = []
@@ -47,6 +45,7 @@ def preview_images(train_loader, class_names, num_rows = 5, num_cols = 5):
         plt.tight_layout()
         normalized_tensor_img = inv_transforms(batch_data[cnt].squeeze())
         this_img = np.asarray(normalized_tensor_img)
+        this_img = (this_img*255./np.max(this_img)).astype('uint8')
         plt.imshow(this_img.transpose((1,2,0)))
         plt.title(class_names[str(batch_label[cnt].item())])
         plt.xticks([])
