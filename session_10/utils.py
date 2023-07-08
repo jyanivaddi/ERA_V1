@@ -29,7 +29,6 @@ def print_train_log(train_acc, test_acc, train_loss, test_loss):
     t.field_names=["Epoch", "Train loss", "Val loss", "Train Accuracy", "Val Accuracy"]
     for cnt in range(len(train_acc)):
         t.add_row([cnt+1,train_loss[cnt], test_loss[cnt], train_acc[cnt], test_acc[cnt]])
-        print(f"{cnt+1}\t\t{train_loss[cnt]:0.2f}\t\t{test_loss[cnt]:0.2f}\t\t{train_acc[cnt]:0.2f}\t\t{test_acc[cnt]:0.2f}\n")
     print(t)
 
 

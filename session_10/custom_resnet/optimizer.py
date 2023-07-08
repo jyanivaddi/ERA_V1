@@ -5,7 +5,7 @@ from torch.optim.lr_scheduler import OneCycleLR
 
 
 class Optimization:
-    def __init__(self, model, device, train_loader, criterion, num_epochs=10):
+    def __init__(self, model, device, train_loader, criterion, num_epochs=24):
         self.model = model
         self.device = device
         self.train_loader = train_loader
@@ -34,7 +34,8 @@ class Optimization:
             div_factor=100,
             three_phase=False,
             final_div_factor=100,
-            anneal_strategy='linear'
+            anneal_strategy='linear',
+            verbose=True
         )
 
 
