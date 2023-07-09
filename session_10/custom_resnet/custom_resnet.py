@@ -22,8 +22,9 @@ class ResidualBlock(nn.Module):
     """
 
     """
-    def __init__(self, in_channels, out_channels, kernel_size = 3, padding=1):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, padding=1, drop_out_probability=0.05):
         super(ResidualBlock, self).__init__()
+        self.drop_out_probability = drop_out_probability
 
         # Conv layer 1
         self.conv1 = self.single_convolution(in_channels, out_channels, kernel_size, padding)
@@ -45,6 +46,7 @@ class ResidualBlock(nn.Module):
                     bias=False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
+            nn.Dropout(self.drop_out_probability)
         )
         return conv_block
 
@@ -55,9 +57,10 @@ class ResidualBlock(nn.Module):
   
 
 class Layer(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size = 3, padding="same"):
+    def __init__(self, in_channels, out_channels, kernel_size = 3, padding="same", drop_out_probability=0.05):
         super(Layer, self).__init__()
         self.padding = padding
+        self.drop_out_probability = drop_out_probability
 
         self.conv1 = self.pooled_convolution(in_channels, out_channels,kernel_size)
         self.res_block = ResidualBlock(out_channels, out_channels, kernel_size, padding=self.padding)
@@ -73,7 +76,8 @@ class Layer(nn.Module):
                     bias=False),
             nn.MaxPool2d(2),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(self.drop_out_probability)
         )
         return conv_block
 
@@ -93,10 +97,11 @@ class CustomResnet(nn.Module):
     num_classes: number of output classes in the input data (for cifar-10, it is 10)
     drop_out_probability: probability to use for dropout
     """
-    def __init__(self, base_channels = 3, num_classes = 10):
+    def __init__(self, base_channels = 3, num_classes = 10, drop_out_probability=0.05):
         super(CustomResnet,self).__init__()
         self.base_channels = base_channels
         self.num_classes = num_classes
+        self.drop_out_probability = drop_out_probability
 
         # prep layer - 64 outputs
         prep_layer_out_channels = 64
@@ -108,7 +113,8 @@ class CustomResnet(nn.Module):
                       padding_mode='reflect', 
                       bias=False), 
             nn.BatchNorm2d(prep_layer_out_channels), 
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(self.drop_out_probability)
         )
 
         # Layer 1 - 128 outputs
@@ -128,7 +134,8 @@ class CustomResnet(nn.Module):
                       bias=False), 
             nn.MaxPool2d(2), 
             nn.BatchNorm2d(layer_2_out_channels), 
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout(self.drop_out_probability)
         )
 
         # Layer 3 - 512 outputs

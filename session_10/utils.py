@@ -79,16 +79,16 @@ def show_incorrect_predictions(incorrect_predictions, class_names, num_rows = 5,
     plt.show()
 
 def plot_statistics(train_losses, train_acc, test_losses, test_acc, target_test_acc = 99):
-    fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+    fig, axs = plt.subplots(1, 2, figsize=(15, 10))
     axs[0, 0].plot(train_losses)
-    axs[0, 0].set_title("Training Loss")
-    axs[1, 0].plot(train_acc)
-    axs[1, 0].set_title("Training Accuracy")
-    axs[0, 1].plot(test_losses)
-    axs[0, 1].set_title("Test Loss")
-    axs[1, 1].plot(test_acc)
-    axs[1, 1].axhline(target_test_acc, color='r')
-    axs[1, 1].set_title("Test Accuracy")
+    axs[0, 0].plot(test_losses)
+    axs[0, 0].legend(('Train','Test'),loc='best')
+    #axs[0, 0].set_title("Loss")
+    axs[0, 1].plot(train_acc)
+    axs[0, 1].plot(test_acc)
+    axs[0, 1].axhline(target_test_acc, color='r')
+    axs[0, 0].legend(('Train','Test'),loc='best')
+    axs[1, 0].set_title("Accuracy")
 
 def plot_statistics_groups(train_losses_list, train_acc_list, test_losses_list, test_acc_list, target_test_acc = 99):
     fig, axs = plt.subplots(2, 2, figsize=(15, 10))
