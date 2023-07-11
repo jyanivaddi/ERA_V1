@@ -9,8 +9,7 @@
 * [Learnings](#Learnings)
 
 # Introduction
-<p>In this module, we build a CNN model to perform image classificaion on the CIFAR-10 dataset. Along the way we build intuition on dilated convolutions and depth-wise separable convolutions. We demonstrate how using dilated and depth-wise convolutions, the classifier can achieve 85% accuracy in under 20 epochs even without a single maxpooling or a stride-2 convolution in the network. The model has 171840 parameters.
-
+In this module, we build a custom resnet model to perform image classification on CIFAR-10 dataset. With this model, we show that by using OnecycleLR scheduling policy, we can achieve a **90.3%** test accuracy within __24__ training epochs for this dataset. We take inspiration from [this](https://myrtle.ai/learn/how-to-train-your-resnet-8-bag-of-tricks/) blog post to build our model. 
 
 # Dataset
 The dataset we use in this notebook is called **[CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)**. This dataset consists of 60000 RGB images of size 32 x 32. There are a total of 10 classes and 6000 images per class. There are 50000 training images and 10000 test images. we set the batch size to 128 during training so there are 391 batches of images per epoch. 
@@ -26,9 +25,9 @@ Image augmentations are used in order to increase the dataset size and as a way 
 
 The three different image transformation methods we use in this model are:
 
-* HorizontalFlip: This method randomly flips an image horizontally 
-* ShiftScaleRotate: This method shifts, scales, or rotates the image 
-* Cutout: This method randomly cuts out a square of size 16 x 16 in the image. 
+* [HorizontalFlip](https://albumentations.ai/docs/api_reference/full_reference/#albumentations.augmentations.geometric.transforms.HorizontalFlip): This method randomly flips an image horizontally 
+* [RandomResizedCrop](https://albumentations.ai/docs/api_reference/full_reference/#albumentations.augmentations.crops.transforms.RandomResizedCrop): This method shifts, scales, or rotates the image 
+* [Cutout](https://albumentations.ai/docs/api_reference/full_reference/#albumentations.augmentations.dropout.coarse_dropout.CoarseDropout): This method randomly cuts out a square of size 8 x 8 in the image. 
 
 The below image demonstrates how the image transforms look on a sample image
 ![transforms](doc/augmentations.png)
