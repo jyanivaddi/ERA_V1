@@ -12,7 +12,7 @@
 In this module, we build a custom resnet model to perform image classification on CIFAR-10 dataset. With this model, we show that by using OnecycleLR scheduling policy, we can achieve a **90.3%** test accuracy within __24__ training epochs for this dataset. We take inspiration from [this](https://myrtle.ai/learn/how-to-train-your-resnet-8-bag-of-tricks/) blog post to build our model. 
 
 # Dataset
-The dataset we use in this notebook is called **[CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)**. This dataset consists of 60000 RGB images of size 32 x 32. There are a total of 10 classes and 6000 images per class. There are 50000 training images and 10000 test images. we set the batch size to 128 during training so there are 391 batches of images per epoch. 
+The dataset we use in this notebook is called **[CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)**. This dataset consists of 60000 RGB images of size 32 x 32. There are a total of 10 classes and 6000 images per class. There are 50000 training images and 10000 test images. we set the batch size to 512 during training so there are 98 batches of images per epoch. 
 
 The images below show some representative images from the dataset
 ![no_labels](doc/dataset_images_no_labels.png)
@@ -93,7 +93,7 @@ Estimated Total Size (MB): 30.96
 =====================================================================================================================================================================
 ```
 
-## Back Propagation
+# Back Propagation
 For this model, we use an [Adam optimizer](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html) for implementing back propagation. Adam optimizer uses a per-parameter learning rate unlike stochastic gradient that uses a single learning rate for all the parameters. We use a [Cross Entropy](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html) as loss function. 
 
 In order the schedule the learning rate, and to achieve faster convergence, we use [OnecycleLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html) scheduler. First proposd by [Leslie Smith](https://arxiv.org/abs/1708.07120), this method works by first increasing the LR to a high value in the initial few epochs, followed by a gradually decreasing trend. The high learning rate helps the model to reach closer to the global minima and the subsequent reduction in the LR stabilizes the optimizer and gives a more accurate minima.
@@ -102,7 +102,7 @@ For this model, the OneCycleLR is defined as follows:
 ```
 scheduler = OneCycleLR(
         optimizer,
-        max_lr = 4.93E-02,
+        max_lr = 4.65E-02,
         steps_per_epoch=98,
         epochs = 24,
         pct_start = 0.208,
@@ -113,6 +113,10 @@ scheduler = OneCycleLR(
         verbose=False
         )
 ```
+In the code above, ```steps_per_epoch``` indicates the length of train loader. Since we set the batch size to 512, there are 98 steps per epoch. ```pct_start``` is the percentage of epochs at which peak LR is applied after which the learning rate is "annealed". The starting learning rate is achieved by dividing the maximum learning rate by ```div_factor```. We disable three phases learning in our model, so the ```final_div_factor``` is not applicable. 
+
+## Detecting max LR value
+The maximum value of learning rate to be used in the onecycleLr policy is calculated using a package called
 
 Figure below shows how the learning rate varied from a starting value of 0.01 over 24 epochs of training. 
 
