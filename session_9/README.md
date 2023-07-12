@@ -256,7 +256,7 @@ Epoch	     Train Loss     Val Loss     Train Accuracy %    Val Accuracy %
 =========================================================================
 
 ```
-The plots below show accuracy and loss computation over 19 epochs of training using all the three normalization methods described above. In our model, we used the group norm with 2 groups. 
+The plots below show accuracy and loss computation over 30 epochs of training using batch normalization. 
 
 ![metrics](doc/model_training.png)
 
