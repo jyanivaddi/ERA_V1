@@ -4,7 +4,7 @@
 * [Introduction](#Introduction)
 * [Dataset](#Dataset)
 * [Model](#Model)
-* [Optimizer and Scheduler](#Back-Propagation)
+* [Optimizer and Scheduler](#Optimizer-and-Scheduler)
 * [Results](#Results)
 * [Learnings](#Learnings)
 
@@ -14,11 +14,8 @@ In this module, we build a custom resnet model to perform image classification o
 # Dataset
 The dataset we use in this notebook is called **[CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)**. This dataset consists of 60000 RGB images of size 32 x 32. There are a total of 10 classes and 6000 images per class. There are 50000 training images and 10000 test images. we set the batch size to 512 during training so there are 98 batches of images per epoch. 
 
-The images below show some representative images from the dataset
-![no_labels](doc/dataset_images_no_labels.png)
-
-The following images show few more samples, along with their labels
-![labels](doc/dataset_images.png)
+The images below show some representative images from the dataset along with their labels
+![labels](doc/image_preview.png)
 
 ## Image Augmentations using Albumentations library
 Image augmentations are used in order to increase the dataset size and as a way of inproving model regularization. By transforming the dataset arbitrarily we ensure that the network does not memorize the train dataset. In our model, we use  [Albumentations](https://albumentations.ai/) library for implementing various image augmentations. The library contains several augmentation methods and it seamlessly integrates with Pytorch. 
@@ -117,11 +114,11 @@ In the code above, ```steps_per_epoch``` indicates the length of train loader. S
 
 ## Detecting max LR value
 The maximum value of learning rate to be used in the onecycleLr policy is calculated using a python package called [LRFinder](https://github.com/davidtvs/pytorch-lr-finder) This module identifies the optimum value of learning rate by iterating over a range of learning rates and determines the value at which the gradients are near maximum. In this model, a peak LR value of 4.65 was calculated as shown below:
-![Learning Rate Variation](doc/lr_iterations.png)
+![Max_LR_calculation](doc/max_lr_annotated.png)
 
 Figure below shows how the learning rate varied from a starting value of 0.01 over 24 epochs of training. 
 
-![LR_scheduler](doc/lr_scheduler.png)
+![LR_scheduler](doc/lr_annotated.png)
 
 
 # Results
@@ -159,12 +156,9 @@ Figure below shows how the learning rate varied from a starting value of 0.01 ov
 ```
 The plots below show accuracy and loss computation over 24 epochs of training. 
 
-![metrics](doc/model_training.png)
+![metrics](doc/loss_annotated.png)
+![metrics2](doc/accuracy_annotated.png)
 
-
-Below figures shows some examples of incorrect predictions the model made in all the three normalization configurations. In each image, the first class indicates the ground truth and the second indicates the model prediction. 
-
-![bn_results](doc/misclassification.png) 
 
 # Learnings
 Some takeaways from this exercise:
