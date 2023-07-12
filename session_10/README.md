@@ -40,7 +40,7 @@ We build a resnet style architecture for this classification model. We have a to
 * __Residual Block__: Residual blocks provide the ability for the model to achieve multiple receptive fields so that objects of various sizes can be easily detected. This is achieved by adding skip connections to the convolution blocks. In the resnet model, a skip connection is added after two successive convolutions. i.e., the output of a convolution block is added to the output of two convolution blocks away. This helps the network to feed the smaller features deeper in the network. Prior to adding skip connections, a pooled convolution is added to reduce the feature size.
 * __Output Block__: In the output block, a max pooling layer is applied to make the feature size 1. The outputs are then expanded with a fully connected layer which outputs 10 channels that feed into a softmax function.
 
-Here is a summary of the model we used to perform classification. The modlarized code is written in 
+Here is a summary of the model we used to perform classification. The model definition is implemented as a fully modular code [here](https://github.com/jyanivaddi/ERA_V1/blob/master/session_10/custom_resnet/custom_resnet.py).
 
 ```
 =====================================================================================================================================================================
@@ -94,11 +94,14 @@ Estimated Total Size (MB): 30.96
 ```
 
 ## Back Propagation
-For this model, we used Stochastic Gradient Descent optimizer with negative log likelihood loss function at an initial learning rate of 0.1. 
+For this model, we use an [Adam optimizer](https://pytorch.org/docs/stable/generated/torch.optim.Adam.html) for implementing back propagation. Adam optimizer uses a per-parameter learning rate unlike stochastic gradient that uses a single learning rate for all the parameters. We use a [Cross Entropy](https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html) as loss function. 
 
-A learning rate scheduler called [ReduceLROnPleateau](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html) was used to automatically adjust the learning rate based on the model performance. The scheduler was changes the learning rate to 10% of the current rate when the test loss hasn't reduced by atleast 0.1 over the previous 4 epochs.
+In order the schedule the learning rate, and to achieve faster convergence, we use [OnecycleLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html) scheduler. First proposd by [Leslie Smith](https://arxiv.org/abs/1708.07120), this method works by first increasing the LR to a high value in the initial few epochs, followed by a gradually decreasing trend. The high learning rate helps the model to reach closer to the global minima and the subsequent reduction in the LR stabilizes the optimizer and gives a more accurate minima.
 
-Figure below shows how the learning rate varied from a starting value of 0.01 over 30 epochs of training.
+In Pytorch, the OneCycleLR is defined as follows:
+
+
+Figure below shows how the learning rate varied from a starting value of 0.01 over 24 epochs of training. 
 
 ![LR_scheduler](doc/lr_scheduler.png)
 
