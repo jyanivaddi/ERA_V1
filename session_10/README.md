@@ -4,7 +4,7 @@
 * [Introduction](#Introduction)
 * [Dataset](#Dataset)
 * [Model](#Model)
-* [Convolutions](#Back-Propagation)
+* [Optimizer and Scheduler](#Back-Propagation)
 * [Results](#Results)
 * [Learnings](#Learnings)
 
