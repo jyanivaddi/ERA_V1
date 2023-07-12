@@ -1,4 +1,4 @@
-# ERA V1 Session 10 - Custom Resnet for CIFAR10 image classification
+![image](https://github.com/jyanivaddi/ERA_V1/assets/135302082/2b82b194-9905-4709-9aa5-8224419502ba)# ERA V1 Session 10 - Custom Resnet for CIFAR10 image classification
 
 ## Contents
 * [Introduction](#Introduction)
@@ -40,7 +40,7 @@ We build a resnet style architecture for this classification model. We have a to
 * __Residual Block__: Residual blocks provide the ability for the model to achieve multiple receptive fields so that objects of various sizes can be easily detected. This is achieved by adding skip connections to the convolution blocks. In the resnet model, a skip connection is added after two successive convolutions. i.e., the output of a convolution block is added to the output of two convolution blocks away. This helps the network to feed the smaller features deeper in the network. Prior to adding skip connections, a pooled convolution is added to reduce the feature size.
 * __Output Block__: In the output block, a max pooling layer is applied to make the feature size 1. The outputs are then expanded with a fully connected layer which outputs 10 channels that feed into a softmax function.
 
-Here is a summary of the model we used to perform classification. The model definition is implemented as a fully modular code [here](https://github.com/jyanivaddi/ERA_V1/blob/master/session_10/custom_resnet/custom_resnet.py).
+Here is a summary of the model we used to perform classification. The table below is generated using the python package [torchinfo](https://pypi.org/project/torchinfo/) This provides a mode intuitive and detailed model summary than . The model definition is implemented as a fully modular code [here](https://github.com/jyanivaddi/ERA_V1/blob/master/session_10/custom_resnet/custom_resnet.py).
 
 ```
 =====================================================================================================================================================================
