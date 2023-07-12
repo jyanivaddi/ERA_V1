@@ -20,7 +20,7 @@ def model_summary(model, input_size):
 
 class ResidualBlock(nn.Module):
     """
-
+    Build a Residual block
     """
     def __init__(self, in_channels, out_channels, kernel_size = 3, padding=1, drop_out_probability=0.05):
         super(ResidualBlock, self).__init__()
