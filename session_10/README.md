@@ -98,8 +98,21 @@ For this model, we use an [Adam optimizer](https://pytorch.org/docs/stable/gener
 
 In order the schedule the learning rate, and to achieve faster convergence, we use [OnecycleLR](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html) scheduler. First proposd by [Leslie Smith](https://arxiv.org/abs/1708.07120), this method works by first increasing the LR to a high value in the initial few epochs, followed by a gradually decreasing trend. The high learning rate helps the model to reach closer to the global minima and the subsequent reduction in the LR stabilizes the optimizer and gives a more accurate minima.
 
-In Pytorch, the OneCycleLR is defined as follows:
-
+For this model, the OneCycleLR is defined as follows:
+```
+scheduler = OneCycleLR(
+        optimizer,
+        max_lr = 4.93E-02,
+        steps_per_epoch=98,
+        epochs = 24,
+        pct_start = 0.208,
+        div_factor=2000,
+        three_phase=False,
+        final_div_factor= 100,
+        anneal_strategy='linear',
+        verbose=False
+        )
+```
 
 Figure below shows how the learning rate varied from a starting value of 0.01 over 24 epochs of training. 
 
