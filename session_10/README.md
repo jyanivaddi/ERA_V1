@@ -4,7 +4,7 @@
 * [Introduction](#Introduction)
 * [Dataset](#Dataset)
 * [Model](#Model)
-* [Convolutions](#Convolutions)
+* [Convolutions](#Back-Propagation)
 * [Results](#Results)
 * [Learnings](#Learnings)
 
@@ -113,7 +113,7 @@ scheduler = OneCycleLR(
         verbose=False
         )
 ```
-In the code above, ```steps_per_epoch``` indicates the length of train loader. Since we set the batch size to 512, there are 98 steps per epoch. ```pct_start``` is the percentage of epochs at which peak LR is applied after which the learning rate is "annealed". The starting learning rate is achieved by dividing the maximum learning rate by ```div_factor```. We disable three phases learning in our model, so the ```final_div_factor``` is not applicable. 
+In the code above, ```steps_per_epoch``` indicates the length of train loader. Since we set the batch size to 512, there are 98 steps per epoch. ```pct_start``` is the percentage of epochs at which peak LR is applied after which the learning rate is "annealed". The starting learning rate is achieved by dividing the maximum learning rate by ```div_factor```. Afer several iterations, we set this parameter to be 2000 to get the 90% accuracy. We disable three phases learning in our model, so the ```final_div_factor``` is not applicable.
 
 ## Detecting max LR value
 The maximum value of learning rate to be used in the onecycleLr policy is calculated using a python package called [LRFinder](https://github.com/davidtvs/pytorch-lr-finder) This module identifies the optimum value of learning rate by iterating over a range of learning rates and determines the value at which the gradients are near maximum. In this model, a peak LR value of 4.65 was calculated as shown below:
@@ -126,7 +126,7 @@ Figure below shows how the learning rate varied from a starting value of 0.01 ov
 
 # Results
 
-**The model was run for 24 epochs and has achieved a maximum validation accuracy of 90.31**. The table below shows the training log over 24 epochs.
+**The model was run for 24 epochs and has achieved a maximum validation accuracy of 90.31**. The table below shows the training log over 24 epochs. This table is generated using a python package [PrettyTable](https://pypi.org/project/prettytable/)
 ```
 +-------+---------------------+-----------------------+----------------+--------------+
 | Epoch |      Train loss     |        Val loss       | Train Accuracy | Val Accuracy |
@@ -157,7 +157,7 @@ Figure below shows how the learning rate varied from a starting value of 0.01 ov
 |   24  | 0.28568454907864943 | 0.0005673721894621849 |      90.3      |    90.31     |
 +-------+---------------------+-----------------------+----------------+--------------+
 ```
-The plots below show accuracy and loss computation over 24 epochs of training 
+The plots below show accuracy and loss computation over 24 epochs of training. 
 
 ![metrics](doc/model_training.png)
 
@@ -168,6 +168,6 @@ Below figures shows some examples of incorrect predictions the model made in all
 
 # Learnings
 Some takeaways from this exercise:
-* Dilated convolutions can enhance the receptive field without compromising on the spatial resolution. These can be used in place of max pooling or strided convolutions.
-* Depthwise separable convolutions are a great tool to reduce the number of parameters while maitaining the capacity. As can be seen in the model, it is far easier to add 64 channel convolutions by using depthwise separable convolution while still keeping the total number of parameters under 200000. These are especially useful when working with limited infrastructure necessitates lighter models.
-* Albumentations is a great library to incorporate augmentations in deep learning models. 
+* Very fast convergence and high validation accuracy can be achieved by using OneCycleLR policy.
+* In onecycleLr, the learning rate scheduler has to be stepped at each batch instead of each epoch. The parameter ```div_factor``` plays an important role in determining the final accuracy.
+* Adding regularization such as dropout, and image agumentations helped the model not to overfit training set. 
