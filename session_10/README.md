@@ -34,38 +34,13 @@ The below image demonstrates how the image transforms look on a sample image
 
 
 # Model
-Our model contains four convolution blocks, each of which has three convolution layers. The output from the fourth block is passed through an adaptive average pooling layer, followed by a 1x1 convolution to reduce the number of output channels to 10. Finally log softmax function is used to calculate the class probabilities.
+We build a resnet style architecture for this classification model. We have a total of 4 blocks in this network. A prep layer, followed by two resnet blocks, followed by the output block. Here is a descriotion of the blocks:
 
-```B1-> B2 -> B3 -> B4 -> AAP -> C5 -> O```  is the model structure 
-where ```B``` represents a convolution block of three layers, ```C``` represents a 1 x 1 convolution block, ```AAP``` represents an Adaptive Average Pooling block, and ```O``` indicates the log softmax output. The model contains a total of 171840 parameters. The model achieved a max. receptive field of 77 for the cifar-10 input data of size 3 x 32 x 32. 
+* __Prep layer__: This is a single convolution with kernel size 3, stride 1 and padding of 1 to keep the output dimensions same. This is followed by a batch normalization, a ReLU activation function, and drop out regularization.
+* __Residual Block__: Residual blocks provide the ability for the model to achieve multiple receptive fields so that objects of various sizes can be easily detected. This is achieved by adding skip connections to the convolution blocks. In the resnet model, a skip connection is added after two successive convolutions. i.e., the output of a convolution block is added to the output of two convolution blocks away. This helps the network to feed the smaller features deeper in the network. Prior to adding skip connections, a pooled convolution is added to reduce the feature size.
+* __Output Block__: In the output block, a max pooling layer is applied to make the feature size 1. The outputs are then expanded with a fully connected layer which outputs 10 channels that feed into a softmax function.
 
-Each block ```B``` contains the following layers:
-
-**Layer 1**: 3D convolution with kernel size of 3 
-
-**Layer 2**: Depthwise separable convolution
-
-**Layer 3**: Dilated convolution
-
-
-
-The receptive field computations for this model are shown below:
-![model_arch](doc/RF_calculations.png)
-
-<!--## Dilated Convolution
-In dilated convolution, the kernel size is effectively increased by using alternate 
-![dilated](doc/dilation.gif)
-![depthwise](doc/Depthwise-separable-convolution-block.png)
-## Regularization
-A uniform drop out value of 5% was used in all the convolution blocks except the final 1 x 1 convolution to prevent overfitting to the train set. 
-
-Feature normalization is performed using batch normalization at each convolution layer
-
-Additionally, data transformations mentioned in the Dataset section were implemtented to augment the dataset. 
--->
-
-## Model Summary
-Here is a summary of the model we used to perform classification. 
+Here is a summary of the model we used to perform classification. The modlarized code is written in 
 
 ```
 =====================================================================================================================================================================
@@ -118,7 +93,7 @@ Estimated Total Size (MB): 30.96
 =====================================================================================================================================================================
 ```
 
-## Optimizer
+## Back Propagation
 For this model, we used Stochastic Gradient Descent optimizer with negative log likelihood loss function at an initial learning rate of 0.1. 
 
 A learning rate scheduler called [ReduceLROnPleateau](https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html) was used to automatically adjust the learning rate based on the model performance. The scheduler was changes the learning rate to 10% of the current rate when the test loss hasn't reduced by atleast 0.1 over the previous 4 epochs.
