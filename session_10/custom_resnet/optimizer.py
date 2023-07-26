@@ -25,13 +25,13 @@ class Optimization:
             steps_per_epoch=len(self.train_loader),
             epochs = self.num_epochs,
             pct_start = 5/self.num_epochs,
-            div_factor=100,
+            div_factor=2000,
             three_phase=False,
             final_div_factor=100,
             anneal_strategy='linear',
             verbose=True
         )
-
+   
 
 def find_best_lr(model, train_loader, optimizer, criterion, device):
     lr_finder = LRFinder(model, optimizer, criterion, device) 

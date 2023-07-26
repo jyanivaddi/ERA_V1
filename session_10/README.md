@@ -116,7 +116,7 @@ In the code above, ```steps_per_epoch``` indicates the length of train loader. S
 The maximum value of learning rate to be used in the onecycleLr policy is calculated using a python package called [LRFinder](https://github.com/davidtvs/pytorch-lr-finder) This module identifies the optimum value of learning rate by iterating over a range of learning rates and determines the value at which the gradients are near maximum. In this model, a peak LR value of 4.65 was calculated as shown below:
 ![Max_LR_calculation](doc/max_lr_annotated.png)
 
-Figure below shows how the learning rate varied from a starting value of 0.01 over 24 epochs of training. 
+Figure below shows how the learning rate varied from a starting value of 2.32E-05 over 24 epochs of training. There are 98 batches in the train loader and for 24 training epochs, a total of 2352 steps were taken by the scheduler 
 
 ![LR_scheduler](doc/lr_annotated.png)
 
