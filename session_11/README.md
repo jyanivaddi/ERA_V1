@@ -7,7 +7,7 @@
 * [Grad CAM Visualization](#Optimizer-and-Scheduler)
 
 # Introduction
-In this module, we train a Resnet18 model to perform image classification on CIFAR-10 dataset. We will also generate Grad-Cam saliency maps on some of the misclassified images to try and understand what features caused the wrong model prediction. The following image augmentations were applied to the dataset:
+In this module, we train a [Resnet18](https://pytorch.org/hub/pytorch_vision_resnet/) model to perform image classification on CIFAR-10 dataset. We will also generate Grad-Cam saliency maps on some of the misclassified images to try and understand what features caused the wrong model prediction. The following image augmentations were applied to the dataset:
 * Random Crop and Pad with a padding of 4 and image size 32 x 32
 * Cutout with a patch size of 16
 
@@ -21,7 +21,7 @@ The images below show some samples along with their labels.
 * The GradCAM visualization is generated using the following repository: [GradCAM](https://github.com/jacobgil/pytorch-grad-cam)
 
 # Model
-The model used in this notebook is RESNET 18. Here is a summary of the model we used to perform classification. The table below is generated using the python package [torchinfo](https://pypi.org/project/torchinfo/) This provides a mode intuitive and detailed model summary than the torchsummary package. 
+The model used in this notebook is RESNET 18. Here is a summary of the model we used to perform classification. The table below is generated using the python package [torchinfo](https://pypi.org/project/torchinfo/) This provides a more intuitive and detailed model summary than the torchsummary package. 
 
 ```
 =====================================================================================================================================================================
@@ -151,7 +151,7 @@ The plots below show the train and test accuracy over 20 epochs of training.
 ![metrics2](doc/Accuracy.png)
 
 # Grad CAM 
-<p>Gradient weighted Class Activatin Mapping ([GradCAM](https://arxiv.org/pdf/1611.07450.pdf)) is an explaianability utility that highlights the regions in the image that cause the model to make a certain prediction. The images below shows some of the misclassified images. In the title, the first label is the predicted, and the second label is the ground truth.</p>
+Gradient weighted Class Activatin Mapping ([GradCAM](https://arxiv.org/pdf/1611.07450.pdf)) is an explaianability utility that highlights the regions in the image that cause the model to make a certain prediction. The images below shows some of the misclassified images. In the title, the first label is the predicted, and the second label is the ground truth.
 
 ![misclassifications](doc/misclassification.png)
 
@@ -159,8 +159,3 @@ The plots below show the train and test accuracy over 20 epochs of training.
 The images below shows the grad cam saliency map for these misclassified images.
 ![gradcamvisualization](doc/grad_cam.png)
 
-# Learnings
-Some takeaways from this exercise:
-* Very fast convergence and high validation accuracy can be achieved by using OneCycleLR policy.
-* In onecycleLr, the learning rate scheduler has to be stepped at each batch instead of each epoch. The parameter ```div_factor``` plays an important role in determining the final accuracy.
-* Adding regularization such as dropout, and image agumentations helped the model not to overfit training set. 
