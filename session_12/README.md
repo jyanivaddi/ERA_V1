@@ -11,6 +11,7 @@ In this notebook, we retrain the custom resnet model that we wrote in [Session 1
   * The Datamodule for pytorch lightning defition is defined [here](https://github.com/jyanivaddi/dl_hub/blob/main/dataloaders/pl_custom_cifar10_datamodule.py). Using this datamodule, we read the train, test, and validation datasets on CIFAR10 using the image augmentations defined with [albumentations](https://albumentations.ai/) library. 
   * The main code that instantiates the model, runs the training, inference, and test is defined [here](https://github.com/jyanivaddi/dl_hub/blob/main/PL_main.py) 
   * Several helper functions to compute misclassified images,GradCAM images, etc is defined in the [utils](https://github.com/jyanivaddi/dl_hub/tree/main/utils) module.
+  * The classifier is also on huggingface spaces and can be found [here](https://huggingface.co/spaces/jvaddi/Cifar10ImageClassifier)
 
 
 # Model
