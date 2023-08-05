@@ -54,8 +54,6 @@ Here is the log summary from training the model for 24 epochs.
 +-------+--------------------+--------------------+-------------------+--------------------+
 ```
 
-
-
 The plots below show the validation and train losses over the training duration
 
 The plot below shows the learning rate variation along the 24 epochs. The learning rate varied from an initial value of 7.8E-6 at step 1 to a max LR of 0.0157 at the end of the 5th epoch, after which it was again linearly reduced to the initial value by the end of the 24th epoch.
