@@ -1,6 +1,9 @@
 venv/*
 .idea/*
-session_5/.ipynb_checkpoints
+*/.idea/*
+*/.ipynb_checkpoints
 */*.json
 data/
+*/dl_hub
+*/logs_*
 *.pyc
