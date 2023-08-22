@@ -76,8 +76,27 @@ Estimated Total Size (MB): 863.33
 ```
 
 ## Mosaic Augmentation
-In order to improve the accuracy, we implement the [mosaic augmentation](https://iopscience.iop.org/article/10.1088/1742-6596/1684/1/012094/pdf) technique here. In this method, 4 randomly selected images from the train set are combined into a single image, each image forming a quarter of the final image. some examples of mosaic augmentation are shown below:
- 
+In order to improve the accuracy, we implement the [mosaic augmentation](https://iopscience.iop.org/article/10.1088/1742-6596/1684/1/012094/pdf) technique here. In this method, 4 randomly selected images from the train set are combined into a single image, each image forming a quarter of the final image. some examples of mosaic augmentation are shown in the image below:
+
+![lr](doc/mosaic.png)
+
+## Optimizer and Scheduler
+We use OneCycleLR scheduler with the following parameters to train the model:
+
+```
+scheduler = OneCycleLR(
+    optimizer,
+    max_lr=8E-04,
+    steps_per_epoch=len(train_data_loader),
+    epochs=40,
+    pct_start=0.125,
+    div_factor=100,
+    three_phase=False,
+    final_div_factor=100,
+    anneal_strategy='linear'
+)
+```
+
 
 ## Implementation
 The model is implemented on Pytorch Lightning and trained for 40 epochs on the PASCAL VOC dataset. The implemetation includes the following:
