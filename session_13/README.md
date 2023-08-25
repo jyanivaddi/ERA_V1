@@ -10,6 +10,7 @@ We train an object detection model from scratch using the YOLOv3 algorithm. The 
 | Test Object Accuracy    | 72.71 %    |
 | Mean Average Precision (MAP)     | 46 % |
 
+In this model, we train the model with only a single resolution (416 x 416). We can expect improved performance if we include multiple resolutions to the model training.
 
 ## Code Links
 * The entire source code for YOLO model can be found [here](https://github.com/jyanivaddi/dl_hub/tree/main/YOLO_V3). This is provided as part of the class notes in session 13 of the ERA V1 course (Thanks Rohan! :smile: )
@@ -303,10 +304,16 @@ Below are a few sample detections from the PASCAL-VOC dataset
 ![lr](doc/output_1.png)
 ![lr](doc/output_2.png)
 ![lr](doc/output_3.png)
+#![lr](doc/output_4.png)
+#![lr](doc/output_5.png)
 
 
 ## EigenCAM explainability
 Since the output of the model is a list of tensors and hence is not differentiable, we use the [EigenCAM](https://arxiv.org/abs/2008.00299) to generate the saliency maps instead of the GradCAM method. Below are the saliency maps for a few samples in the dataset.
+
+
+![lr](doc/grad_cam_outputs.png)
+
 
 
 
