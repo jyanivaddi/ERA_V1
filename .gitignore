@@ -8,3 +8,4 @@ data/
 */logs_*
 *.pyc
 */runs
+*/weights
