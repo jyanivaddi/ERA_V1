@@ -5,7 +5,8 @@ venv/*
 */*.json
 data/
 */dl_hub
-*/logs*
+*/logs_*
+#*/logs*
 */runs
 *.pyc
 */weights
