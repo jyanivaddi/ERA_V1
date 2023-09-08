@@ -7,307 +7,40 @@ In this model, we train the transformer model on two different datasets. In the 
 For the English-Italian dataset, we got a training loss of 2.75 in 10 epochs of training, and for the English-French dataset, the same was 1.67 in 40 epochs of training. 
 
 ## Code Links
-* The entire source code for the transformer model can be found [here](https://github.com/jyanivaddi/dl_hub/tree/main/YOLO_V3). This is provided as part of the class notes in session 13 of the ERA V1 course (Thanks Rohan! :smile: )
-* The EigenCAM explainability maps were generated using the [pytorch-gradcam](https://github.com/jacobgil/pytorch-grad-cam) library.  
-* The PASCAL VOC dataset used to train the model is from [Kaggle](https://www.kaggle.com/datasets/aladdinpersson/pascal-voc-dataset-used-in-yolov3-video?resource=download).
-* The model is hosted as HuggingFace spaces and is available [here](https://huggingface.co/spaces/jvaddi/ObjectDetectionYOLOv3).
+* The entire source code for the transformer model can be found [here](https://github.com/jyanivaddi/dl_hub/tree/main/Transformer).
+* The files [PL_data_module.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/PL_data_module.py) ,[PL_model.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/PL_model.py), and [PL_main.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/PL_main.py) contain the pytorch lightning code.
+* The file [config.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/config.py) contains the configuration parameters for the model.
+* The files  [model.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/model.py), [dataset.py](https://github.com/jyanivaddi/dl_hub/blob/main/Transformer/dataset.py) contain the pytorch model definitions, and the dataset definitions. 
+* The OpusBooks dataset from HuggingFace was used to train the model.).
+* The model is hosted as HuggingFace spaces and is available [here](https://huggingface.co/spaces/jvaddi).
 
 
-## Model
-This notebook is trained on the YOLOv3 model. Here is the architecture of the model. 
-
-![yolo](doc/yolo-architecture.webp)
-
-The model summary is as follows:
-
-```
-====================================================================================================================================================================================
-Layer (type:depth-idx)                                  Kernel Shape              Input Shape               Output Shape              Param #                   Mult-Adds
-====================================================================================================================================================================================
-LitYOLOv3                                               --                        [1, 3, 416, 416]          [1, 3, 13, 13, 25]        --                        --
-├─YOLOv3: 1-1                                           --                        --                        --                        --                        --
-│    └─ModuleList: 2-1                                  --                        --                        --                        --                        --
-│    │    └─CNNBlock: 3-1                               --                        [1, 3, 416, 416]          [1, 32, 416, 416]         928                       149,520,448
-│    │    └─CNNBlock: 3-2                               --                        [1, 32, 416, 416]         [1, 64, 208, 208]         18,560                    797,442,176
-│    │    └─ResidualBlock: 3-3                          --                        [1, 64, 208, 208]         [1, 64, 208, 208]         20,672                    886,046,912
-│    │    └─CNNBlock: 3-4                               --                        [1, 64, 208, 208]         [1, 128, 104, 104]        73,984                    797,442,304
-│    │    └─ResidualBlock: 3-5                          --                        [1, 128, 104, 104]        [1, 128, 104, 104]        164,608                   1,772,094,208
-│    │    └─CNNBlock: 3-6                               --                        [1, 128, 104, 104]        [1, 256, 52, 52]          295,424                   797,442,560
-│    │    └─ResidualBlock: 3-7                          --                        [1, 256, 52, 52]          [1, 256, 52, 52]          2,627,584                 7,088,379,904
-│    │    └─CNNBlock: 3-8                               --                        [1, 256, 52, 52]          [1, 512, 26, 26]          1,180,672                 797,443,072
-│    │    └─ResidualBlock: 3-9                          --                        [1, 512, 26, 26]          [1, 512, 26, 26]          10,498,048                7,088,386,048
-│    │    └─CNNBlock: 3-10                              --                        [1, 512, 26, 26]          [1, 1024, 13, 13]         4,720,640                 797,444,096
-│    │    └─ResidualBlock: 3-11                         --                        [1, 1024, 13, 13]         [1, 1024, 13, 13]         20,983,808                3,544,199,168
-│    │    └─CNNBlock: 3-12                              --                        [1, 1024, 13, 13]         [1, 512, 13, 13]          525,312                   88,605,696
-│    │    └─CNNBlock: 3-13                              --                        [1, 512, 13, 13]          [1, 1024, 13, 13]         4,720,640                 797,444,096
-│    │    └─ResidualBlock: 3-14                         --                        [1, 1024, 13, 13]         [1, 1024, 13, 13]         5,245,952                 886,049,792
-│    │    └─CNNBlock: 3-15                              --                        [1, 1024, 13, 13]         [1, 512, 13, 13]          525,312                   88,605,696
-│    │    └─ScalePrediction: 3-16                       --                        [1, 512, 13, 13]          [1, 3, 13, 13, 25]        4,797,665                 810,435,971
-│    │    └─CNNBlock: 3-17                              --                        [1, 512, 13, 13]          [1, 256, 13, 13]          131,584                   22,151,680
-│    │    └─Upsample: 3-18                              --                        [1, 256, 13, 13]          [1, 256, 26, 26]          --                        --
-│    │    └─CNNBlock: 3-19                              --                        [1, 768, 26, 26]          [1, 256, 26, 26]          197,120                   132,907,520
-│    │    └─CNNBlock: 3-20                              --                        [1, 256, 26, 26]          [1, 512, 26, 26]          1,180,672                 797,443,072
-│    │    └─ResidualBlock: 3-21                         --                        [1, 512, 26, 26]          [1, 512, 26, 26]          1,312,256                 886,048,256
-│    │    └─CNNBlock: 3-22                              --                        [1, 512, 26, 26]          [1, 256, 26, 26]          131,584                   88,605,184
-│    │    └─ScalePrediction: 3-23                       --                        [1, 256, 26, 26]          [1, 3, 26, 26, 25]        1,219,297                 823,452,172
-│    │    └─CNNBlock: 3-24                              --                        [1, 256, 26, 26]          [1, 128, 26, 26]          33,024                    22,151,424
-│    │    └─Upsample: 3-25                              --                        [1, 128, 26, 26]          [1, 128, 52, 52]          --                        --
-│    │    └─CNNBlock: 3-26                              --                        [1, 384, 52, 52]          [1, 128, 52, 52]          49,408                    132,907,264
-│    │    └─CNNBlock: 3-27                              --                        [1, 128, 52, 52]          [1, 256, 52, 52]          295,424                   797,442,560
-│    │    └─ResidualBlock: 3-28                         --                        [1, 256, 52, 52]          [1, 256, 52, 52]          328,448                   886,047,488
-│    │    └─CNNBlock: 3-29                              --                        [1, 256, 52, 52]          [1, 128, 52, 52]          33,024                    88,604,928
-│    │    └─ScalePrediction: 3-30                       --                        [1, 128, 52, 52]          [1, 3, 52, 52, 25]        314,849                   849,562,160
-====================================================================================================================================================================================
-Total params: 61,626,499
-Trainable params: 61,626,499
-Non-trainable params: 0
-Total mult-adds (G): 32.71
-====================================================================================================================================================================================
-Input size (MB): 2.08
-Forward/backward pass size (MB): 614.75
-Params size (MB): 246.50
-Estimated Total Size (MB): 863.33
-====================================================================================================================================================================================
-```
-
-## Mosaic Augmentation
-In order to improve the accuracy, we implement the [mosaic augmentation](https://iopscience.iop.org/article/10.1088/1742-6596/1684/1/012094/pdf) technique here. In this method, 4 randomly selected images from the train set are combined into a single image, each image forming a quarter of the final image. some examples of mosaic augmentation are shown in the image below:
-
-![lr](doc/mosaic.png)
-
+## Performance Enhancements
+In order to improve the accuracy, we add the following modifications to the model:
+* Since there are some corrupted sentences in the English-French language in the OpusBooks dataset, we perform a preprocessing step where we filter out data samples for which the English language sentences are longer than 150 tokens. Additionally, we also filter out train samples where the French sentences are longer than English sentence by 10 words.
+* To reduce the processing time and reduce the computational cost, we perform [dynamic batching](https://www.kaggle.com/code/rhtsingh/speeding-up-transformer-w-optimization-strategies)  during training. In this process, instead of fixing the size of padding for all the samples, we pad all train samples according to the longest sentence in that batch.
+* We also implement the [parameter sharing](https://arxiv.org/pdf/2104.06022.pdf) to reduce the model size and improve performance.
+  
 ## Optimizer and Scheduler
 We use OneCycleLR scheduler with the following parameters to train the model:
 
 ```
 scheduler = OneCycleLR(
     optimizer,
-    max_lr=8E-04,
+    max_lr=1E-04,
     steps_per_epoch=len(train_data_loader),
     epochs=40,
     pct_start=0.125,
-    div_factor=100,
-    three_phase=False,
-    final_div_factor=100,
+    div_factor=10,
+    three_phase=True,
+    final_div_factor=10,
     anneal_strategy='linear'
 )
 ```
+We use Adam optimizer, along with CrossEntropy loss to train this model. 
 
-
-## Implementation
-The model is implemented on Pytorch Lightning and trained for 40 epochs on the PASCAL VOC dataset. The implemetation includes the following:
- * A pytorch lightning [Model](https://github.com/jyanivaddi/dl_hub/blob/main/YOLO_V3/PL_model.py) written as a wrapper to the original model written using [Pytorch](https://github.com/jyanivaddi/dl_hub/blob/main/YOLO_V3/model.py).
- * A lightning [datamodule](https://github.com/jyanivaddi/dl_hub/blob/main/YOLO_V3/yolo_v3_utils/PL_data_module.py) written as a wrapper to the Yolov3 [data loader](https://github.com/jyanivaddi/dl_hub/blob/main/YOLO_V3/yolo_v3_utils/pascal_voc_dataset_mosaic.py).    
- 
 
 ## Results
-Here is the log summary from training the model for 40 epochs. 
-
-```
-Using 16bit None Automatic Mixed Precision (AMP)
-GPU available: True (cuda), used: True
-TPU available: False, using: 0 TPU cores
-IPU available: False, using: 0 IPUs
-HPU available: False, using: 0 HPUs
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
-
-  | Name           | Type     | Params
---------------------------------------------
-0 | model          | YOLOv3   | 61.6 M
-1 | loss_criterion | YoloLoss | 0     
---------------------------------------------
-61.6 M    Trainable params
-0         Non-trainable params
-61.6 M    Total params
-123.253   Total estimated model params size (MB)
-Training: 0it [00:00, ?it/s]
-Validation: 0it [00:00, ?it/s]
-epoch: 0  val_Class_Accuracy: 45.45454788208008
-epoch: 0  val_No_Obj_Accuracy: 90.34444427490234
-epoch: 0  val_Obj_Accuracy: 18.18181800842285
-Validation: 0it [00:00, ?it/s]
-epoch: 1  val_Class_Accuracy: 45.45454788208008
-epoch: 1  val_No_Obj_Accuracy: 99.39728546142578
-epoch: 1  val_Obj_Accuracy: 0.0
-Validation: 0it [00:00, ?it/s]
-epoch: 2  val_Class_Accuracy: 39.39393997192383
-epoch: 2  val_No_Obj_Accuracy: 99.73690032958984
-epoch: 2  val_Obj_Accuracy: 6.060606002807617
-Validation: 0it [00:00, ?it/s]
-epoch: 3  val_Class_Accuracy: 42.42424392700195
-epoch: 3  val_No_Obj_Accuracy: 98.84288787841797
-epoch: 3  val_Obj_Accuracy: 30.30303192138672
-Validation: 0it [00:00, ?it/s]
-epoch: 4  val_Class_Accuracy: 57.57575607299805
-epoch: 4  val_No_Obj_Accuracy: 98.03345489501953
-epoch: 4  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 5  val_Class_Accuracy: 21.212121963500977
-epoch: 5  val_No_Obj_Accuracy: 98.38380432128906
-epoch: 5  val_Obj_Accuracy: 30.30303192138672
-Validation: 0it [00:00, ?it/s]
-epoch: 6  val_Class_Accuracy: 51.51515197753906
-epoch: 6  val_No_Obj_Accuracy: 98.46031951904297
-epoch: 6  val_Obj_Accuracy: 30.30303192138672
-Validation: 0it [00:00, ?it/s]
-epoch: 7  val_Class_Accuracy: 63.6363639831543
-epoch: 7  val_No_Obj_Accuracy: 98.67912292480469
-epoch: 7  val_Obj_Accuracy: 18.18181800842285
-Validation: 0it [00:00, ?it/s]
-epoch: 8  val_Class_Accuracy: 48.48484802246094
-epoch: 8  val_No_Obj_Accuracy: 97.29381561279297
-epoch: 8  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 9  val_Class_Accuracy: 21.212121963500977
-epoch: 9  val_No_Obj_Accuracy: 98.5059585571289
-epoch: 9  val_Obj_Accuracy: 36.3636360168457
-Validation: 0it [00:00, ?it/s]
-epoch: 10  val_Class_Accuracy: 51.51515197753906
-epoch: 10  val_No_Obj_Accuracy: 98.72207641601562
-epoch: 10  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 11  val_Class_Accuracy: 51.51515197753906
-epoch: 11  val_No_Obj_Accuracy: 98.3623275756836
-epoch: 11  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 12  val_Class_Accuracy: 57.57575607299805
-epoch: 12  val_No_Obj_Accuracy: 98.66972351074219
-epoch: 12  val_Obj_Accuracy: 30.30303192138672
-Validation: 0it [00:00, ?it/s]
-epoch: 13  val_Class_Accuracy: 60.60606384277344
-epoch: 13  val_No_Obj_Accuracy: 99.31271362304688
-epoch: 13  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 14  val_Class_Accuracy: 72.7272720336914
-epoch: 14  val_No_Obj_Accuracy: 98.94759368896484
-epoch: 14  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 15  val_Class_Accuracy: 72.7272720336914
-epoch: 15  val_No_Obj_Accuracy: 98.56636810302734
-epoch: 15  val_Obj_Accuracy: 48.48484802246094
-Validation: 0it [00:00, ?it/s]
-epoch: 16  val_Class_Accuracy: 72.7272720336914
-epoch: 16  val_No_Obj_Accuracy: 98.42407989501953
-epoch: 16  val_Obj_Accuracy: 36.3636360168457
-Validation: 0it [00:00, ?it/s]
-epoch: 17  val_Class_Accuracy: 72.7272720336914
-epoch: 17  val_No_Obj_Accuracy: 98.99726104736328
-epoch: 17  val_Obj_Accuracy: 33.333335876464844
-Validation: 0it [00:00, ?it/s]
-epoch: 18  val_Class_Accuracy: 51.51515197753906
-epoch: 18  val_No_Obj_Accuracy: 98.77308654785156
-epoch: 18  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 19  val_Class_Accuracy: 69.69696807861328
-epoch: 19  val_No_Obj_Accuracy: 98.91671752929688
-epoch: 19  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 20  val_Class_Accuracy: 84.8484878540039
-epoch: 20  val_No_Obj_Accuracy: 98.73147583007812
-epoch: 20  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 21  val_Class_Accuracy: 51.51515197753906
-epoch: 21  val_No_Obj_Accuracy: 98.8992691040039
-epoch: 21  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 22  val_Class_Accuracy: 90.90909576416016
-epoch: 22  val_No_Obj_Accuracy: 98.88316345214844
-epoch: 22  val_Obj_Accuracy: 36.3636360168457
-Validation: 0it [00:00, ?it/s]
-epoch: 23  val_Class_Accuracy: 90.90909576416016
-epoch: 23  val_No_Obj_Accuracy: 99.03484344482422
-epoch: 23  val_Obj_Accuracy: 42.42424392700195
-Validation: 0it [00:00, ?it/s]
-epoch: 24  val_Class_Accuracy: 81.81818389892578
-epoch: 24  val_No_Obj_Accuracy: 98.68852233886719
-epoch: 24  val_Obj_Accuracy: 57.57575607299805
-Validation: 0it [00:00, ?it/s]
-epoch: 25  val_Class_Accuracy: 100.0
-epoch: 25  val_No_Obj_Accuracy: 98.9032974243164
-epoch: 25  val_Obj_Accuracy: 45.45454788208008
-Validation: 0it [00:00, ?it/s]
-epoch: 26  val_Class_Accuracy: 90.90909576416016
-epoch: 26  val_No_Obj_Accuracy: 98.96772766113281
-epoch: 26  val_Obj_Accuracy: 48.48484802246094
-Validation: 0it [00:00, ?it/s]
-epoch: 27  val_Class_Accuracy: 78.78787994384766
-epoch: 27  val_No_Obj_Accuracy: 98.76637268066406
-epoch: 27  val_Obj_Accuracy: 57.57575607299805
-Validation: 0it [00:00, ?it/s]
-epoch: 28  val_Class_Accuracy: 84.8484878540039
-epoch: 28  val_No_Obj_Accuracy: 99.06706237792969
-epoch: 28  val_Obj_Accuracy: 45.45454788208008
-Validation: 0it [00:00, ?it/s]
-epoch: 29  val_Class_Accuracy: 93.93939208984375
-epoch: 29  val_No_Obj_Accuracy: 98.91940307617188
-epoch: 29  val_Obj_Accuracy: 45.45454788208008
-Validation: 0it [00:00, ?it/s]
-epoch: 30  val_Class_Accuracy: 100.0
-epoch: 30  val_No_Obj_Accuracy: 99.11405181884766
-epoch: 30  val_Obj_Accuracy: 57.57575607299805
-Validation: 0it [00:00, ?it/s]
-epoch: 31  val_Class_Accuracy: 96.96969604492188
-epoch: 31  val_No_Obj_Accuracy: 99.06706237792969
-epoch: 31  val_Obj_Accuracy: 48.48484802246094
-Validation: 0it [00:00, ?it/s]
-epoch: 32  val_Class_Accuracy: 100.0
-epoch: 32  val_No_Obj_Accuracy: 98.93953704833984
-epoch: 32  val_Obj_Accuracy: 60.60606384277344
-Validation: 0it [00:00, ?it/s]
-epoch: 33  val_Class_Accuracy: 100.0
-epoch: 33  val_No_Obj_Accuracy: 98.99054718017578
-epoch: 33  val_Obj_Accuracy: 57.57575607299805
-Validation: 0it [00:00, ?it/s]
-epoch: 34  val_Class_Accuracy: 96.96969604492188
-epoch: 34  val_No_Obj_Accuracy: 99.15565490722656
-epoch: 34  val_Obj_Accuracy: 60.60606384277344
-Validation: 0it [00:00, ?it/s]
-epoch: 35  val_Class_Accuracy: 96.96969604492188
-epoch: 35  val_No_Obj_Accuracy: 99.13418579101562
-epoch: 35  val_Obj_Accuracy: 60.60606384277344
-Validation: 0it [00:00, ?it/s]
-epoch: 36  val_Class_Accuracy: 100.0
-epoch: 36  val_No_Obj_Accuracy: 99.04155731201172
-epoch: 36  val_Obj_Accuracy: 69.69696807861328
-Validation: 0it [00:00, ?it/s]
-epoch: 37  val_Class_Accuracy: 96.96969604492188
-epoch: 37  val_No_Obj_Accuracy: 99.12881469726562
-epoch: 37  val_Obj_Accuracy: 54.54545593261719
-Validation: 0it [00:00, ?it/s]
-epoch: 38  val_Class_Accuracy: 100.0
-epoch: 38  val_No_Obj_Accuracy: 99.12747192382812
-epoch: 38  val_Obj_Accuracy: 60.60606384277344
-Validation: 0it [00:00, ?it/s]
-epoch: 39  val_Class_Accuracy: 100.0
-epoch: 39  val_No_Obj_Accuracy: 99.1476058959961
-epoch: 39  val_Obj_Accuracy: 60.60606384277344
-`Trainer.fit` stopped: `max_epochs=40` reached.
-LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
-Testing: 0it [00:00, ?it/s]
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-       Test metric             DataLoader 0
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   test_Class_Accuracy       88.84369659423828
-  test_No_Obj_Accuracy       98.90843963623047
-    test_Obj_Accuracy        72.7097396850586
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-```
-
-## Sample Detections
-Below are a few sample detections from the PASCAL-VOC dataset
-
-![lr](doc/output_1.png)
-![lr](doc/output_2.png)
-![lr](doc/output_3.png)
-#![lr](doc/output_4.png)
-#![lr](doc/output_5.png)
-
-
-## EigenCAM explainability
-Since the output of the model is a list of tensors and hence is not differentiable, we use the [EigenCAM](https://arxiv.org/abs/2008.00299) to generate the saliency maps instead of the GradCAM method. Below are the saliency maps for a few samples in the dataset.
-
-
-![lr](doc/grad_cam_outputs.png)
-
 
 
 
