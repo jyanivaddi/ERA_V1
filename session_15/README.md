@@ -41,6 +41,7 @@ We use Adam optimizer, along with CrossEntropy loss to train this model.
 
 
 ## Results
+Below images show the results
 
 
 
