@@ -2,10 +2,12 @@
 
 In this notebook, we demonstrate a transformer model built and trained from scratch to perform English to French and English to Italian translations. The transformer model follows an encoder-decoder architecture based on the original [paper](https://arxiv.org/abs/1706.03762) titled "Attention is all you need". The image below shows the model architecture.
 
-In this model, we train the transformer model on two different datasets. In the notebook [S15_pl_lightning.ipynb](https://github.com/jyanivaddi/ERA_V1/blob/master/session_15/S15_pl_lightning.ipynb), we build the model and train it a little on the English-Italian translation dataset. In the notebook 
+In this model, we train the transformer model on two different datasets. In the notebook [S15_pl_lightning.ipynb](https://github.com/jyanivaddi/ERA_V1/blob/master/session_15/S15_pl_lightning.ipynb), we build the model and train it a little on the English-Italian translation dataset. In the notebook [S15_pl_lightning_En_Fr.ipynb](https://github.com/jyanivaddi/ERA_V1/blob/master/session_15/S15_pl_lightning_En_Fr.ipynb), we train the same model with a few performance enhancements but instead train on the English - French dataset. In the sections below, we discuss the performance enhancements in detail. 
+
+For the English-Italian dataset, we got a training loss of 2.75 in 10 epochs of training, and for the English-French dataset, the same was 1.67 in 40 epochs of training. 
 
 ## Code Links
-* The entire source code for YOLO model can be found [here](https://github.com/jyanivaddi/dl_hub/tree/main/YOLO_V3). This is provided as part of the class notes in session 13 of the ERA V1 course (Thanks Rohan! :smile: )
+* The entire source code for the transformer model can be found [here](https://github.com/jyanivaddi/dl_hub/tree/main/YOLO_V3). This is provided as part of the class notes in session 13 of the ERA V1 course (Thanks Rohan! :smile: )
 * The EigenCAM explainability maps were generated using the [pytorch-gradcam](https://github.com/jacobgil/pytorch-grad-cam) library.  
 * The PASCAL VOC dataset used to train the model is from [Kaggle](https://www.kaggle.com/datasets/aladdinpersson/pascal-voc-dataset-used-in-yolov3-video?resource=download).
 * The model is hosted as HuggingFace spaces and is available [here](https://huggingface.co/spaces/jvaddi/ObjectDetectionYOLOv3).
