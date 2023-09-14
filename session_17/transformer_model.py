@@ -373,14 +373,14 @@ class GPT(nn.Module):
         self.token_embedding_table = nn.Embedding(self.vocab_size, self.d_model)
         # each position from 0 to block_size-1 will get its embedding
         self.position_embedding_table = nn.Embedding(self.block_size, self.d_model)
-        self.decoder_blocks = []
+        self.blocks = []
         for _ in range(self.num_layers):
             # create the decoder blocks
             decoder_self_attention_block = MultiHeadAttentionBlock(self.d_model, self.num_heads, self.dropout)
             feed_forward_block = FeedForwardBlock(self.d_model, self.d_ff, self.dropout)
             decoder_block = DecoderBlock(self.block_size, decoder_self_attention_block,
                                          feed_forward_block, self.dropout)
-            self.decoder_blocks.append(decoder_block)
+            self.blocks.append(decoder_block)
 
         # we add the layer norm before the Linear layer
         self.ln_f = nn.LayerNorm(self.d_model)
