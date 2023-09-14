@@ -382,7 +382,7 @@ class GPT(nn.Module):
                                          feed_forward_block, self.dropout)
             decoder_blocks.append(decoder_block)
 
-        self.blocks = nn.Sequential(decoder_blocks)
+        self.blocks = nn.Sequential(*decoder_blocks)
         # we add the layer norm before the Linear layer
         self.ln_f = nn.LayerNorm(self.d_model)
         self.lm_head = nn.Linear(self.d_model, self.vocab_size)
