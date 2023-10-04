@@ -10,3 +10,7 @@ data/
 #*/runs
 *.pyc
 */weights
+session_18/MNIST
+session_18/lightning_logs
+session_18/mnist_data
+
