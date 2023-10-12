@@ -9,6 +9,7 @@ from torch import autocast
 from torchvision import transforms as tfms
 from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer, logging
+from PIL import Image
 import os
 import cv2
 import torchvision.transforms as T
@@ -17,23 +18,23 @@ import torchvision.transforms as T
 class StableDiffusion:
     def __init__(self, torch_device, num_inference_steps=30, height=512, width=512, guidance_scale=7.5, custom_loss_fn=None, custom_loss_scale=100.0):
         # Load the autoencoder
-        self.vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='vae')
+        vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='vae')
     
         # Load tokenizer and text encoder to tokenize and encode the text
-        self.tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
-        self.text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
+        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
+        text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
     
         # Unet model for generating latents
-        self.unet = UNet2DConditionModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='unet')
+        unet = UNet2DConditionModel.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='unet')
     
         # Noise scheduler
         self.scheduler = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear", num_train_timesteps=1000)
     
         # Move everything to GPU
         self.torch_device = torch_device
-        self.vae = self.vae.to(self.torch_device)
-        self.text_encoder = self.text_encoder.to(self.torch_device)
-        self.unet = self.unet.to(self.torch_device)
+        self.vae = vae.to(self.torch_device)
+        self.text_encoder = text_encoder.to(self.torch_device)
+        self.unet = unet.to(self.torch_device)
 
         # additional properties
         self.num_inference_steps = num_inference_steps
@@ -125,7 +126,7 @@ class StableDiffusion:
 
         # Getting the output embeddings involves calling the model with passing output_hidden_states=True
         # so that it doesn't just return the pooled final predictions:
-        encoder_outputs = text_encoder.text_model.encoder(
+        encoder_outputs = self.text_encoder.text_model.encoder(
             inputs_embeds=input_embeddings,
             attention_mask=None, # We aren't using an attention mask so that can be None
             causal_attention_mask=causal_attention_mask.to(self.torch_device),
@@ -138,7 +139,7 @@ class StableDiffusion:
         output = encoder_outputs[0]
 
         # There is a final layer norm we need to pass these through
-        output = text_encoder.text_model.final_layer_norm(output)
+        output = self.text_encoder.text_model.final_layer_norm(output)
 
         # And now they're ready!
         return output
