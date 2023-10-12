@@ -1,6 +1,6 @@
 import torch
 from torchvision.transforms import ToTensor
-from utils import set_timesteps, get_output_embeds, get_style_embeddings, get_EOS_pos_in_prompt, invert_loss, pil_to_latent, latents_to_pil
+from utils import set_timesteps, get_style_embeddings, get_EOS_pos_in_prompt, invert_loss 
 from base64 import b64encode
 import numpy as np
 from diffusers import AutoencoderKL, LMSDiscreteScheduler, UNet2DConditionModel
@@ -15,7 +15,7 @@ import torchvision.transforms as T
 
 
 class StableDiffusion:
-    def __init__(self, num_inference_steps=30, height=512, width=512, guidance_scale=7.5, custom_loss_fn=None, custom_loss_scale=100.0):
+    def __init__(self, torch_device, num_inference_steps=30, height=512, width=512, guidance_scale=7.5, custom_loss_fn=None, custom_loss_scale=100.0):
         # Load the autoencoder
         self.vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='vae')
     
@@ -30,9 +30,10 @@ class StableDiffusion:
         self.scheduler = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear", num_train_timesteps=1000)
     
         # Move everything to GPU
-        self.vae = vae.to(torch_device)
-        self.text_encoder = text_encoder.to(torch_device)
-        self.unet = unet.to(torch_device)
+        self.torch_device = torch_device
+        self.vae = self.vae.to(self.torch_device)
+        self.text_encoder = self.text_encoder.to(self.torch_device)
+        self.unet = self.unet.to(self.torch_device)
 
         # additional properties
         self.num_inference_steps = num_inference_steps
@@ -43,6 +44,11 @@ class StableDiffusion:
         self.custom_loss_scale = custom_loss_scale
 
 
+    # Prep Scheduler
+    def set_timesteps(self):
+        self.scheduler.set_timesteps(self.num_inference_steps)
+        self.scheduler.timesteps = self.scheduler.timesteps.to(torch.float32) # minor fix to ensure MPS compatibility, fixed in diffusers PR 3925
+        
 
     def additional_guidance(self, latents, noise_pred, t, sigma):
         #### ADDITIONAL GUIDANCE ###
@@ -77,15 +83,15 @@ class StableDiffusion:
         [""] * batch_size, padding="max_length", max_length=max_length, return_tensors="pt"
         )
         with torch.no_grad():
-            uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(torch_device))[0]
+            uncond_embeddings = self.text_encoder(uncond_input.input_ids.to(self.torch_device))[0]
         text_embeddings = torch.cat([uncond_embeddings, text_embeddings])
 
         # Prep Scheduler
-        set_timesteps(self.scheduler, self.num_inference_steps)
+        self.set_timesteps()
 
         # Prep latents
-        latents = torch.randn( (batch_size, unet.in_channels, self.height // 8, self.width // 8), generator=generator,)
-        latents = latents.to(torch_device)
+        latents = torch.randn( (batch_size, self.unet.in_channels, self.height // 8, self.width // 8), generator=generator,)
+        latents = latents.to(self.torch_device)
         latents = latents * self.scheduler.init_noise_sigma
 
         # Loop
@@ -109,17 +115,63 @@ class StableDiffusion:
 
             # compute the previous noisy sample x_t -> x_t-1
             latents = self.scheduler.step(noise_pred, t, latents).prev_sample
+        return self.latents_to_pil(latents)[0]
 
-        return latents_to_pil(latents)[0]
+
+    def get_output_embeds(self, input_embeddings):
+        # CLIP's text model uses causal mask, so we prepare it here:
+        bsz, seq_len = input_embeddings.shape[:2]
+        causal_attention_mask = self.text_encoder.text_model._build_causal_attention_mask(bsz, seq_len, dtype=input_embeddings.dtype)
+
+        # Getting the output embeddings involves calling the model with passing output_hidden_states=True
+        # so that it doesn't just return the pooled final predictions:
+        encoder_outputs = text_encoder.text_model.encoder(
+            inputs_embeds=input_embeddings,
+            attention_mask=None, # We aren't using an attention mask so that can be None
+            causal_attention_mask=causal_attention_mask.to(self.torch_device),
+            output_attentions=None,
+            output_hidden_states=True, # We want the output embs not the final output
+            return_dict=None,
+        )
+
+        # We're interested in the output hidden state only
+        output = encoder_outputs[0]
+
+        # There is a final layer norm we need to pass these through
+        output = text_encoder.text_model.final_layer_norm(output)
+
+        # And now they're ready!
+        return output
+
+
+    def pil_to_latent(self, input_im):
+        # Single image -> single latent in a batch (so size 1, 4, 64, 64)
+        with torch.no_grad():
+            latent = self.vae.encode(tfms.ToTensor()(input_im).unsqueeze(0).to(self.torch_device)*2-1) # Note scaling
+        return 0.18215 * latent.latent_dist.sample()
+
+
+    def latents_to_pil(self, latents):
+        # bath of latents -> list of images
+        latents = (1 / 0.18215) * latents
+        with torch.no_grad():
+            image = self.vae.decode(latents).sample
+        image = (image / 2 + 0.5).clamp(0, 1)
+        image = image.detach().cpu().permute(0, 2, 3, 1).numpy()
+        images = (image * 255).round().astype("uint8")
+        pil_images = [Image.fromarray(image) for image in images]
+        return pil_images
+
+
 
 
     def generate_image_with_custom_style(self, prompt, style_token_embedding=None, random_seed=41):
         eos_pos = get_EOS_pos_in_prompt(prompt)
 
         # tokenize
-        text_input = self.tokenizer(prompt, padding="max_length", max_length=tokenizer.model_max_length, truncation=True, return_tensors="pt")
+        text_input = self.tokenizer(prompt, padding="max_length", max_length=self.tokenizer.model_max_length, truncation=True, return_tensors="pt")
         max_length = text_input.input_ids.shape[-1]
-        input_ids = text_input.input_ids.to(torch_device)
+        input_ids = text_input.input_ids.to(self.torch_device)
 
         # get token embeddings
         token_emb_layer = self.text_encoder.text_model.embeddings.token_embedding
@@ -136,7 +188,7 @@ class StableDiffusion:
         input_embeddings = token_embeddings + position_embeddings
 
         #  Feed through to get final output embs
-        modified_output_embeddings = get_output_embeds(input_embeddings)
+        modified_output_embeddings = self.get_output_embeds(input_embeddings)
 
         # And generate an image with this:
         generated_image = self.generate_with_embs(modified_output_embeddings, max_length, random_seed)
