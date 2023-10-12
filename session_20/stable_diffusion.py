@@ -21,7 +21,7 @@ class StableDiffusion:
         vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='vae')
     
         # Load tokenizer and text encoder to tokenize and encode the text
-        tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
+        self.tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
         text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
     
         # Unet model for generating latents
