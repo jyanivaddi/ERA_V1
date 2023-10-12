@@ -16,7 +16,7 @@ import torchvision.transforms as T
 
 
 class StableDiffusion:
-    def __init__(self, torch_device, num_inference_steps=30, height=512, width=512, guidance_scale=7.5, custom_loss_fn=None, custom_loss_scale=100.0):
+    def __init__(self, torch_device, num_inference_steps=30, height=512, width=512, guidance_scale=7.5):
         # Load the autoencoder
         vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder='vae')
     
@@ -41,8 +41,6 @@ class StableDiffusion:
         self.height = height                        # default height of Stable Diffusion
         self.width = width                         # default width of Stable Diffusion
         self.guidance_scale = guidance_scale                # Scale for classifier-free guidance
-        self.custom_loss_fn = custom_loss_fn
-        self.custom_loss_scale = custom_loss_scale
 
 
     # Prep Scheduler
@@ -51,7 +49,7 @@ class StableDiffusion:
         self.scheduler.timesteps = self.scheduler.timesteps.to(torch.float32) # minor fix to ensure MPS compatibility, fixed in diffusers PR 3925
         
 
-    def additional_guidance(self, latents, noise_pred, t, sigma):
+    def additional_guidance(self, latents, noise_pred, t, sigma, custom_loss_fn, custom_loss_scale):
         #### ADDITIONAL GUIDANCE ###
         # Requires grad on the latents
         latents = latents.detach().requires_grad_()
@@ -65,7 +63,7 @@ class StableDiffusion:
         denoised_images = self.vae.decode((1 / 0.18215) * latents_x0).sample / 2 + 0.5 # range (0, 1)
 
         # Calculate loss
-        loss = self.custom_loss_fn(denoised_images) * self.custom_loss_scale
+        loss = custom_loss_fn(denoised_images) * custom_loss_scale
 
         # Get gradient
         cond_grad = torch.autograd.grad(loss, latents, allow_unused=False)[0]
@@ -75,7 +73,7 @@ class StableDiffusion:
         return latents, loss
 
 
-    def generate_with_embs(self, text_embeddings, max_length, random_seed, loss_fn = None):
+    def generate_with_embs(self, text_embeddings, max_length, random_seed, custom_loss_fn, custom_loss_scale):
 
         generator = torch.manual_seed(random_seed)   # Seed generator to create the inital latent noise
         batch_size = 1
@@ -109,9 +107,9 @@ class StableDiffusion:
             # perform guidance
             noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
             noise_pred = noise_pred_uncond + self.guidance_scale * (noise_pred_text - noise_pred_uncond)
-            if loss_fn is not None:
+            if custom_loss_fn is not None:
                 if i%2 == 0:
-                    latents, custom_loss = self.additional_guidance(latents, noise_pred, t, sigma, loss_fn)
+                    latents, custom_loss = self.additional_guidance(latents, noise_pred, t, sigma, custom_loss_fn, custom_loss_scale)
                     print(i, 'loss:', custom_loss.item())
 
             # compute the previous noisy sample x_t -> x_t-1
@@ -164,9 +162,7 @@ class StableDiffusion:
         return pil_images
 
 
-
-
-    def generate_image_with_custom_style(self, prompt, style_token_embedding=None, random_seed=41):
+    def generate_image_with_custom_style(self, prompt, style_token_embedding=None, random_seed=41, custom_loss_fn = None, custom_loss_scale=None):
         eos_pos = get_EOS_pos_in_prompt(prompt)
 
         # tokenize
@@ -192,6 +188,6 @@ class StableDiffusion:
         modified_output_embeddings = self.get_output_embeds(input_embeddings)
 
         # And generate an image with this:
-        generated_image = self.generate_with_embs(modified_output_embeddings, max_length, random_seed)
+        generated_image = self.generate_with_embs(modified_output_embeddings, max_length, random_seed, custom_loss_fn, custom_loss_scale)
         return generated_image
         
