@@ -1,6 +1,6 @@
 import torch
 from torchvision.transforms import ToTensor
-from utils import set_timesteps, get_style_embeddings, get_EOS_pos_in_prompt, invert_loss 
+from utils import get_style_embeddings, get_EOS_pos_in_prompt, invert_loss 
 from base64 import b64encode
 import numpy as np
 from diffusers import AutoencoderKL, LMSDiscreteScheduler, UNet2DConditionModel
