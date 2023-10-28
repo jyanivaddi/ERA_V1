@@ -1,5 +1,6 @@
 venv/*
 .idea/*
+*.ckpt
 */.idea/*
 */.ipynb_checkpoints
 */*.json
