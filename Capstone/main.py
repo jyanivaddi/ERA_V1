@@ -13,7 +13,7 @@ from torch.utils.data import Dataset, DataLoader
 from datasets import load_dataset
 from tqdm import tqdm
 from pathlib import Path
-from numba import cuda
+#from numba import cuda
 from typing import Union, List
 import torch.multiprocessing as mp 
 from torch.cuda.amp import autocast
@@ -22,11 +22,13 @@ from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks.progress import TQDMProgressBar
+from transformers import AutoProcessor, CLIPVisionModel
 from pytorch_lightning.callbacks import Callback
 import torchmetrics
 import wandb
 
-from .dataset import fetch_captions_and_images, PreTrainDataset
+from dataset import fetch_captions_and_images, PreTrainDataset
+from model import LitMultiModalGPT, SimpleLinearBlock, model_summary
 
 
 class PeriodicCheckpoint(ModelCheckpoint):
@@ -62,7 +64,8 @@ class PrintAccuracyAndLoss(Callback):
 def train_multimodal_gpt_model(model, train_dataloader, val_dataloader, logger=None, ckpt_path=None, max_training_steps=2):
     trainer = Trainer(
         enable_checkpointing=True,
-        max_steps=max_training_steps,
+        #max_steps=max_training_steps,
+        max_epochs = 100,
         accelerator="auto", #"auto" if torch.cuda.is_available() else "cpu",
         devices = 1, 
         logger=logger,
@@ -82,11 +85,6 @@ def train_multimodal_gpt_model(model, train_dataloader, val_dataloader, logger=N
 
 if __name__ == '__main__':
 
-    # Instantiate WandB logger
-    wandb.login()
-    wandb_logger = WandbLogger(save_dir=log_dir, name='mm_phi_stage1')
-    text_table = wandb.Table(columns=["training_step", "loss", "text"])
-    val_data_log = []
 
 
     # Define configuration
@@ -94,20 +92,30 @@ if __name__ == '__main__':
     #train_dataset_path = '/kaggle/input/coco2017-clip-image-embeddings/coco_embeddings_clip_vision_1x768'
     #captions_path = '/kaggle/input/coco-2017-dataset/coco2017/annotations/captions_train2017.json'
     #captions_key = 'annotations'
-    json_path = 'test.json'
+    json_path = './data/captions_train2017.json'
     batch_size = 1
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    projection_layer_in_channels = 50
+    projection_layer_in_channels = 768
     projection_layer_out_channels = 2560
     max_training_steps = 100000
-    seq_len = 50
+    seq_len = 64
     log_dir = 'phi_pretrain'
     exp_name = 'phi2_proj_layer'
     check_point_save_dir = 'phi2_projection_checkpoints/'
     os.makedirs(check_point_save_dir,exist_ok = True)
     save_freq = 1000
     val_check_interval = 1000
+    log_dir = './logs'
     lr = 1e-4
+    resume_training=False
+    proj_weights_path = 'phi2_projection_checkpoints/ckpt_latest.pt'
+
+    # Instantiate WandB logger
+    wandb.login()
+    wandb_logger = WandbLogger(save_dir=log_dir, name='mm_phi_stage1_ec2')
+    text_table = wandb.Table(columns=["training_step", "loss", "text"])
+    val_data_log = []
+
 
 
     # Define the models and tokenizers
@@ -150,22 +158,30 @@ if __name__ == '__main__':
 
     train_dataloader = DataLoader(dataset = train_ds,
                                 batch_size = batch_size,
-                                num_workers = 1,
-                                collate_fn = train_ds.collate_samples,
+                                num_workers = 3,
+                                collate_fn = None,
                                 shuffle = True)
     val_dataloader = DataLoader(dataset = val_ds,
                                 batch_size = 1,
-                                num_workers = 1,
-                                collate_fn = val_ds.collate_samples,
+                                num_workers = 3,
+                                collate_fn = None,
                                 shuffle = True)
 
+    #test_model = SimpleLinearBlock(projection_layer_in_channels, projection_layer_out_channels)
+    #model_summary(test_model, (1,50, 768))
 
     # Define multimodal model
     multimodal_gpt_model = LitMultiModalGPT(projection_layer_in_channels,
                                             projection_layer_out_channels,
-                                            hidden_size = projection_hidden_size)
+                                            )
     optimizer = torch.optim.Adam(multimodal_gpt_model.parameters(), lr=1.0e-4, eps=1e-9)
     multimodal_gpt_model.set_optimizer(optimizer)
+
+    # if resume training, load the model 
+    if resume_training:
+        multimodal_gpt_model.projection_layer.load_state_dict(torch.load(proj_weights_path))
+        print("loaded projection weights")
+        
 
     # define and train the model
     trainer = train_multimodal_gpt_model(multimodal_gpt_model, train_dataloader, val_dataloader, logger = wandb_logger, max_training_steps=max_training_steps)

@@ -1,5 +1,7 @@
 import requests
 import json
+import torch
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 
 def fetch_captions_and_images(json_path):
@@ -40,7 +42,7 @@ def get_image_embeddings(image_url, model, preprocessor, device=None):
     processed_image = preprocessor(images=image, return_tensors="pt")
     with torch.no_grad():
         outputs = model(**processed_image)
-    return outputs.last_hidden_state.squeeze()
+    return outputs.last_hidden_state.squeeze()[1:,:]
 
 class PreTrainDataset(Dataset):
 
@@ -52,7 +54,7 @@ class PreTrainDataset(Dataset):
                  clip_model,
                  clip_preprocessor,
                  device,
-                 seq_len=50):
+                 seq_len=64):
         super().__init__()
         self.tokenizer = tokenizer
         self.ds = None
@@ -62,10 +64,13 @@ class PreTrainDataset(Dataset):
         self.eos_token = self.tokenizer.eos_token
         self.eos_token_id = 50256
         self.COMMENT_TOKEN_ID = 23893
+        self.IMAGE_TOKEN_ID = 5159
         self.seq_len = seq_len
         self.captions = captions
         self.raw_images_list = raw_images_list
         self.image_ids = image_ids
+        self.image_embedding_size = 49 
+        self.max_caption_len = self.seq_len - (1+self.image_embedding_size+2) # 64 - (<image token>, 49 , <comment>, eos)
         
 
     def __len__(self):
@@ -76,14 +81,14 @@ class PreTrainDataset(Dataset):
 
         # get image embeddings
         this_img_id = "{:012d}".format(int(self.image_ids[idx]))
-        image_embeddings = get_image_embeddings(self.raw_images_list[int(self.image_ids[idx])], clip_model, clip_preprocessor)
+        image_embeddings = get_image_embeddings(self.raw_images_list[int(self.image_ids[idx])], self.clip_model, self.clip_preprocessor)
         
         # get caption
         caption = self.captions[int(this_img_id)]
         tokenized_caption = self.tokenize_caption(caption)
         
         return {
-            "image_embeddings": image_embeddings.unsqueeze(0),
+            "image_embeddings": image_embeddings,
             "caption": caption,
             "tokenized_caption": tokenized_caption,
             "token_len": len(tokenized_caption)
@@ -92,16 +97,11 @@ class PreTrainDataset(Dataset):
     def tokenize_caption(self, caption):
         tokenizer_output = self.tokenizer(caption, return_tensors="pt", return_attention_mask=False)
         tokenized_caption = tokenizer_output['input_ids'].squeeze()
-        #if len(caption_encoded) > self.seq_len:
-        #    caption_encoded = caption_encoded[:self.seq_len-2]
-        #num_padding_tokens = self.seq_len - len(caption_encoded) + 1
-        ## Add <s> and </s> token
-        #tokenized_caption = torch.cat(
-        #    [
-        #        caption_encoded.squeeze(),
-        #        torch.tensor([self.tokenizer.eos_token_id]*num_padding_tokens,dtype=torch.int64),
-        #    ],dim=0)
-        ##print(f"caption length: {len(caption_encoded)} number of padding tokens: {num_padding_tokens} total size: {len(tokenized_caption)}")
+        if len(tokenized_caption) > self.max_caption_len: # token is longer than max lengh, crop and add eos token
+            tokenized_caption = torch.cat([tokenized_caption[:self.max_caption_len], torch.tensor([self.eos_token_id], dtype=torch.int64)], dim=0)
+        else: # token is shorter than max length - pad and add eos token
+            num_padding_tokens = self.max_caption_len - len(tokenized_caption) + 1
+            tokenized_caption = torch.cat([tokenized_caption, torch.tensor([self.eos_token_id] * num_padding_tokens, dtype=torch.int64)], dim=0)
         return tokenized_caption
 
 
@@ -114,7 +114,9 @@ class PreTrainDataset(Dataset):
         #print("inside collate function")
         # max encoder str length
         max_len = max(x["token_len"] for x in batch)
-        print(f"longest token in this batch: {max_len}")
+        #print(f"longest token in this batch: {max_len}")
+        #tokenized_captions = torch.nn.utils.rnn.pad_sequence(batch['tokenized_captions'])
+        #image_embeddings = torch.nn.utils.rnn.pad_sequence(batch['image_embeddings'])
 
         captions_list = []
         image_embeddings_list = []
@@ -123,16 +125,18 @@ class PreTrainDataset(Dataset):
         for cnt, x in enumerate(batch):
             # Add sos, eos and padding to each sentence
             num_padding_tokens = max(0, max_len - len(x["tokenized_caption"]))+1  # we will add <s> and </s>
+            image_tokens = torch.tensor([self.IMAGE_TOKEN_ID]*self.image_embedding_size,dtype=torch.int64)
 
             # Add <s> and </s> token
             batch_x = torch.cat(
                 [
+                    image_tokens,
                     x['tokenized_caption'],
                     torch.tensor([self.eos_token_id] * num_padding_tokens, dtype=torch.int64),
                 ],
                 dim=0,
             )
-            print(batch_x)
+            #print(batch_x)
             tokenized_captions_list.append(batch_x)
             image_embeddings_list.append(x['image_embeddings'])
             captions_list.append(x['caption'])
@@ -140,6 +144,6 @@ class PreTrainDataset(Dataset):
         #print("inside get item and I am returning the dict list!")
         return {
             "image_embeddings": torch.vstack(image_embeddings_list),
-            "tokenized_captions": torch.vstack(tokenized_captions_list).unsqueeze(1),
+            "tokenized_captions": torch.vstack(tokenized_captions_list),
             "captions": captions_list,
         }
