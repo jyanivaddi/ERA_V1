@@ -1,12 +1,22 @@
 import requests
 import json
 import torch
+import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from typing import Sequence
 
 
-
+def split_data_to_train_and_val(data_path):
+    list_data_dict = json.load(open(data_path, "r"))
+    num_samples = len(list_data_dict)
+    rand_indices = np.arange(num_samples)
+    np.random.shuffle(rand_indices)
+    val_indices = rand_indices[:100]
+    train_indices = rand_indices[100:]
+    train_data = [list_data_dict[i] for i in train_indices]
+    val_data = [list_data_dict[i] for i in val_indices]
+    return train_data, val_data
 
 
 def get_image_embeddings(image_url, model, preprocessor, device=None):
@@ -23,18 +33,19 @@ def get_image_embeddings(image_url, model, preprocessor, device=None):
     return outputs.last_hidden_state.squeeze()[1:,:]
 
 
+
 class LlavaFinetuneDataset(Dataset):
     """Dataset for supervised fine-tuning."""
 
     def __init__(self, 
-                 data_path,
+                 list_data_dict,
                  tokenizer,
                  clip_model,
                  clip_preprocessor,
                  device,
                  max_seq_len=64):
         super(LlavaFinetuneDataset, self).__init__()
-        self.list_data_dict = json.load(open(data_path, "r"))
+        self.list_data_dict = list_data_dict
         self.tokenizer = tokenizer
         self.clip_model = clip_model
         self.clip_preprocessor = clip_preprocessor
@@ -46,7 +57,8 @@ class LlavaFinetuneDataset(Dataset):
         self.IMAGE_START_TOKEN = "<image>"
         self.seq_len = seq_len
         self.image_embedding_size = 49 
-        self.max_question_len = self.max_seq_len - (1+self.image_embedding_size+2) # 64 - (<image token>, 49 , <comment>, eos)
+        #self.max_question_len = self.max_seq_len - (1+self.image_embedding_size+2) # 64 - (<image token>, 49 , <comment>, eos)
+        self.max_question_len = 32
 
 
     def __len__(self):
@@ -71,23 +83,18 @@ class LlavaFinetuneDataset(Dataset):
         image_file = self.list_data_dict[i]['image']
         image_url = f"http://images.cocodataset.org/train2017/{image_file}"
         image_embeddings = get_image_embeddings(image_url, self.clip_model, self.clip_preprocessor)
-        if not image_embeddings:
+        if image_embeddings is None:
+            print("warning: skipping due to invalid image path")
             return None
         conversation = self.extract_conversation(self.list_data_dict[i]['conversations'])
         conversation['image_embeddings'] = image_embeddings
         return conversation
 
 
-    def tokenize_caption(self, sentence, crop_if_needed = True):
+    def tokenize_sentence(self, sentence, filter_long_sentence = True):
         tokenizer_output = self.tokenizer(sentence, return_tensors="pt", return_attention_mask=False)
         tokenized_sentence = tokenizer_output['input_ids'].squeeze()
-        if crop_if_needed:
-            if len(tokenized_sentence) > self.max_question_len: # token is longer than max lengh, crop and add eos token
-                tokenized_sentence = torch.cat([tokenized_caption[:self.max_caption_len], torch.tensor([self.eos_token_id], dtype=torch.int64)], dim=0)
-            else: # token is shorter than max length - pad and add eos token
-                num_padding_tokens = self.max_caption_len - len(tokenized_caption) + 1
-                tokenized_caption = torch.cat([tokenized_caption, torch.tensor([self.eos_token_id] * num_padding_tokens, dtype=torch.int64)], dim=0)
-        return tokenized_caption
+        return tokenized_sentence
 
 
     def extract_conversation(self, conversations_list):
@@ -104,52 +111,49 @@ class LlavaFinetuneDataset(Dataset):
         assert conversations_list[ans_idx]['from'] == 'gpt'
         ques = conversations_list[ques_idx]['value'].strip("<image>\n")
         ans = conversations_list[ans_idx]['value']
-        ques_tokenized = self.tokenize_sentence(ques, crop_if_needed = True)
-        ans_tokenized = self.tokenize_sentence(ans, crop_if_needed = False)
-        return
+        ques_tokenized = self.tokenize_sentence(ques, filter_long_sentence = True)
+        ans_tokenized = self.tokenize_sentence(ans, filter_long_sentence = False)
+        conversation = {}
+        conversation['ques_tokenized'] = ques_tokenized
+        conversation['ans_tokenized'] = ans_tokenized
+        conversation['question'] = ques
+        conversation['answer'] = ans
+        return conversation
 
 
 @dataclass
-class DataCollatorForSupervisedDataset(object):
-    """Collate examples for supervised fine-tuning."""
+class LlavaCollator(object):
+    """
+    Collate examples for Llava fine-tuning dataset
+    if any of the value is None
+    """
 
     tokenizer: transformers.PreTrainedTokenizer
+    max_length: int
 
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
-        input_ids, labels = tuple([instance[key] for instance in instances]
-                                  for key in ("input_ids", "labels"))
-        input_ids = torch.nn.utils.rnn.pad_sequence(
-            input_ids,
+        for instance in instances:
+            if any(value is None for value in instance.values()):
+                return None
+        image_embeddings, ques_tokenized, ans_tokenized, questions, answers = tuple([instance[key] for instance in instances]
+                                  for key in ("image_embeddings", "ques_tokenized", "ans_tokenized", "question","answer"))
+        ques_tokenized = torch.nn.utils.rnn.pad_sequence(
+            ques_tokenized,
             batch_first=True,
-            padding_value=self.tokenizer.pad_token_id)
-        labels = torch.nn.utils.rnn.pad_sequence(labels,
+            padding_value=self.tokenizer.eos_token_id)
+        ans_tokenized = torch.nn.utils.rnn.pad_sequence(ans_tokenized,
                                                  batch_first=True,
-                                                 padding_value=IGNORE_INDEX)
-        input_ids = input_ids[:, :self.tokenizer.model_max_length]
-        labels = labels[:, :self.tokenizer.model_max_length]
+                                                 padding_value=self.tokenizer.eos_token_id)
+        ques_tokenized = ques_tokenized[:, :max_length]
+        ans_tokenized = ans_tokenized[:, :max_length]
         batch = dict(
-            input_ids=input_ids,
-            labels=labels,
-            attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
+            ques_tokenized=ques_tokenized,
+            ans_tokenized=ans_tokenized,
+            attention_mask=ques_tokenized.ne(self.tokenizer.pad_token_id),
         )
 
-        if 'image' in instances[0]:
-            images = [instance['image'] for instance in instances]
-            if all(x is not None and x.shape == images[0].shape for x in images):
-                batch['images'] = torch.stack(images)
-            else:
-                batch['images'] = images
+        batch['image_embeddings'] = torch.stack(image_embeddings)
 
         return batch
 
 
-def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
-                                data_args) -> Dict:
-    """Make dataset and collator for supervised fine-tuning."""
-    train_dataset = LazySupervisedDataset(tokenizer=tokenizer,
-                                data_path=data_args.data_path,
-                                data_args=data_args)
-    data_collator = DataCollatorForSupervisedDataset(tokenizer=tokenizer)
-    return dict(train_dataset=train_dataset,
-                eval_dataset=None,
-                data_collator=data_collator)
