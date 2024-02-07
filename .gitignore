@@ -19,3 +19,7 @@ session_18/mnist_data
 .vscode
 *.pem
 phi2_projection_checkpoints
+phi2_finetune_checkpoints*
+Capstone/logs
+Capstone_pretrain
+

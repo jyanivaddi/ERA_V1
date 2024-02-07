@@ -1,10 +1,12 @@
 import requests
 import json
 import torch
+import transformers
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
-from typing import Sequence
+from typing import Sequence, Dict
+from dataclasses import dataclass
 
 
 def split_data_to_train_and_val(data_path):
@@ -55,10 +57,8 @@ class LlavaFinetuneDataset(Dataset):
         self.COMMENT_TOKEN_ID = 23893
         self.IMAGE_TOKEN_ID = 5159
         self.IMAGE_START_TOKEN = "<image>"
-        self.seq_len = seq_len
+        self.seq_len = max_seq_len
         self.image_embedding_size = 49 
-        #self.max_question_len = self.max_seq_len - (1+self.image_embedding_size+2) # 64 - (<image token>, 49 , <comment>, eos)
-        self.max_question_len = 32
 
 
     def __len__(self):
@@ -88,6 +88,7 @@ class LlavaFinetuneDataset(Dataset):
             return None
         conversation = self.extract_conversation(self.list_data_dict[i]['conversations'])
         conversation['image_embeddings'] = image_embeddings
+        conversation['image_url'] = image_url
         return conversation
 
 
@@ -102,10 +103,10 @@ class LlavaFinetuneDataset(Dataset):
         if there are multiple conversations, lets pick one of them
         """
         assert len(conversations_list) % 2 == 0 # we always want to make sure there are pairs of conversations
-        num_conversations = int(conversations_list/2)
+        num_conversations = int(len(conversations_list))/2
         # lets pick a random conversational index
         tgt_idx = np.random.randint(0, num_conversations)  
-        ques_idx = 2*tgt_idx-2
+        ques_idx = max(0,2*tgt_idx-2)
         ans_idx = ques_idx + 1
         assert conversations_list[ques_idx]['from'] == 'human'
         assert conversations_list[ans_idx]['from'] == 'gpt'
@@ -129,14 +130,15 @@ class LlavaCollator(object):
     """
 
     tokenizer: transformers.PreTrainedTokenizer
-    max_length: int
+    max_label_len: int
 
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
+        batch_size = len(instances)
         for instance in instances:
             if any(value is None for value in instance.values()):
                 return None
-        image_embeddings, ques_tokenized, ans_tokenized, questions, answers = tuple([instance[key] for instance in instances]
-                                  for key in ("image_embeddings", "ques_tokenized", "ans_tokenized", "question","answer"))
+        image_embeddings, ques_tokenized, ans_tokenized, questions, answers, image_urls = tuple([instance[key] for instance in instances]
+                                  for key in ("image_embeddings", "ques_tokenized", "ans_tokenized", "question","answer", "image_url"))
         ques_tokenized = torch.nn.utils.rnn.pad_sequence(
             ques_tokenized,
             batch_first=True,
@@ -144,16 +146,35 @@ class LlavaCollator(object):
         ans_tokenized = torch.nn.utils.rnn.pad_sequence(ans_tokenized,
                                                  batch_first=True,
                                                  padding_value=self.tokenizer.eos_token_id)
-        ques_tokenized = ques_tokenized[:, :max_length]
-        ans_tokenized = ans_tokenized[:, :max_length]
+
+        # question is shorter than min length. so pad with eos tokens
+        if ques_tokenized.shape[1] < self.max_label_len:
+            num_padding_tokens = self.max_label_len - ques_tokenized.shape[1]
+            ques_tokenized = torch.cat([
+                ques_tokenized, 
+                torch.tensor([self.tokenizer.eos_token_id]*num_padding_tokens).repeat(batch_size,1)], dim=1)
+        else:
+            ques_tokenized = ques_tokenized[:, :self.max_label_len]
+
+        # answer is shorter than min length, so pad with eos tokens
+        if ans_tokenized.shape[1] < self.max_label_len:
+            num_padding_tokens = self.max_label_len - ans_tokenized.shape[1]
+            ans_tokenized = torch.cat([
+                ans_tokenized, 
+                torch.tensor([self.tokenizer.eos_token_id]*num_padding_tokens).repeat(batch_size,1)], dim=1)        
+        else:
+            ans_tokenized = ans_tokenized[:, :self.max_label_len]
+
+        assert ques_tokenized.shape[1] == ans_tokenized.shape[1]
+
         batch = dict(
             ques_tokenized=ques_tokenized,
             ans_tokenized=ans_tokenized,
-            attention_mask=ques_tokenized.ne(self.tokenizer.pad_token_id),
         )
-
         batch['image_embeddings'] = torch.stack(image_embeddings)
-
+        batch['questions'] =  questions
+        batch['answers'] = answers
+        batch['image_urls'] = image_urls
         return batch
 
 

@@ -1,0 +1,13 @@
+numpy
+transformers
+datasets
+tqdm
+matplotlib
+wandb
+torchmetrics
+torchinfo
+pillow
+pytorch-lightning
+peft
+bitsandbytes
+einops
