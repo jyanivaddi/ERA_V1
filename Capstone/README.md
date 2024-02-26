@@ -96,6 +96,25 @@ The final step is to put everything together to a web application on Hugging fac
 
 ![r3](doc/Multimodal_gpt.png)
 
+## Description of code and python scripts
+### Projection layer training
+* [main_pretrain.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/main_pretrain.py) sets up and trains the projection layer using COCO17 dataset.
+* [dataset.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/dataset.py) defines the dataset for projection layer training
+* [model_pretrain.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/model_pretrain.py) contains model definitions to train the projection layer
+
+### Finetuning the projection layer and LLM
+* [main_finetune.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/main_finetune.py) sets up and finetunes the projection layer and the Phi model using QLORA strategy.
+* [llava_instruct_dataset](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/llava_instruct_dataset.py) defines the dataset for the finetuning the model with Q&A.
+* [model_finetune.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/model_finetune.py) contains model definitions to finetune the projection layer and LLM.
+
+### Stage 1 pretraining
+* [Part_1/main.ipynb](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/Part_1/main.ipynb) contains the code to pretrain an LLM. 
+
+### Hugging face space
+* [app.py](https://huggingface.co/spaces/jvaddi/Multi_Modal_Chat_Assistant/blob/main/app.py) contains the code to define and build the HuggingFace spaces app for this project
+* [utils.py](https://huggingface.co/spaces/jvaddi/Multi_Modal_Chat_Assistant/blob/main/utils.py) contains support functions for the huggingface spaces app.
+
+
 
 # Potential improvements to the model
 Despite training the model for several hours (~ 30 hours for both pretraining and finetuning combined), the model is not giving optimal predictions and the training loss has plateaued. Maybe by training the model further or by experimenting with the learning rate, the model would train better.
