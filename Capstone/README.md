@@ -96,7 +96,7 @@ The final step is to put everything together to a web application on Hugging fac
 
 ![r3](doc/Multimodal_gpt.png)
 
-## Description of code and python scripts
+# Description of code and python scripts
 ### Projection layer training
 * [main_pretrain.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/main_pretrain.py) sets up and trains the projection layer using COCO17 dataset.
 * [dataset.py](https://github.com/jyanivaddi/ERA_V1/blob/master/Capstone/dataset.py) defines the dataset for projection layer training
